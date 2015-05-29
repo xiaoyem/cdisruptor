@@ -21,6 +21,8 @@
 #ifndef SEQ_INCLUDED
 #define SEQ_INCLUDED
 
+#include <stdbool.h>
+
 /* FIXME: exported types */
 typedef struct seq_t {
 	long	p1, p2, p3, p4, p5, p6, p7;
@@ -36,7 +38,7 @@ extern void  seq_free(seq_t *sp);
 extern int   seq_length(seq_t seq);
 extern long  seq_get(seq_t seq);
 extern void  seq_set(seq_t seq, long val);
-extern void  seq_comp_and_set(seq_t seq, long oldval, long newval);
+extern bool  seq_comp_and_set(seq_t seq, long oldval, long newval);
 extern long  seq_incr_and_get(seq_t seq);
 extern long  seq_add_and_get(seq_t seq, long incr);
 

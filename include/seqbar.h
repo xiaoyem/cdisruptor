@@ -27,7 +27,6 @@
 #include "seqr.h"
 
 /* FIXME: exported types */
-typedef struct waitstg_t *waitstg_t;
 typedef struct seqbar_t *seqbar_t;
 
 /* FIXME: exported functions */

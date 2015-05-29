@@ -65,7 +65,7 @@ long seqbar_wait_for(seqbar_t seqbar, long seq) {
 	availseq = waitstg_wait_for(seqbar->waitstg, seq, seqbar->cursorseq, seqbar->depseq, seqbar);
 	if (availseq < seq)
 		return availseq;
-	return seqr_get_highest_published_seq(seq, availseq);
+	return seqr_get_highest_published_seq(seqbar->seqr, seq, availseq);
 }
 
 /* get the current cursor value that can be read */

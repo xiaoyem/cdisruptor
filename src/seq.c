@@ -87,7 +87,7 @@ long seq_get(seq_t seq) {
 	return __atomic_load_n(val_, __ATOMIC_ACQUIRE);
 }
 
-/* perform an ordered write of this sequence */
+/* FIXME */
 void seq_set(seq_t seq, long val) {
 	long *val_;
 
@@ -98,13 +98,13 @@ void seq_set(seq_t seq, long val) {
 }
 
 /* perform a compare and set operation on the sequence */
-void seq_comp_and_set(seq_t seq, long oldval, long newval) {
+bool seq_comp_and_set(seq_t seq, long oldval, long newval) {
 	long *val_;
 
 	if (seq == NULL)
-		return;
+		return false;
 	val_ = (void *)seq + offsetof(struct seq_t, value);
-	__atomic_compare_exchange_n(val_, &oldval, newval, 1, __ATOMIC_RELEASE, __ATOMIC_RELAXED);
+	return __atomic_compare_exchange_n(val_, &oldval, newval, 1, __ATOMIC_RELEASE, __ATOMIC_RELAXED);
 }
 
 /* atomically increment the sequence by one */

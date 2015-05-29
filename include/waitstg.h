@@ -24,21 +24,18 @@
 #include "seq.h"
 #include "seqbar.h"
 
-/* FIXME */
-#define BLOCKING        1
-#define BUSYSPIN        2
-#define LITEBLOCKING    3
-#define PHASEDBACKOFF   4
-#define SLEEPING        5
-#define TIMEOUTBLOCKING 6
-#define YIELDING        7
-
 /* FIXME: exported types */
-typedef struct seqbar_t *seqbar_t;
 typedef struct waitstg_t *waitstg_t;
+typedef struct seqbar_t *seqbar_t;
 
 /* FIXME: exported functions */
-extern waitstg_t waitstg_new(int type);
+extern waitstg_t waitstg_new_blocking(void);
+extern waitstg_t waitstg_new_busyspin(void);
+extern waitstg_t waitstg_new_liteblocking(void);
+extern waitstg_t waitstg_new_phasedbackoff(long spinto, long yieldto, waitstg_t fallbackstg);
+extern waitstg_t waitstg_new_sleeping(int retries);
+extern waitstg_t waitstg_new_timeoutblocking(long timeout);
+extern waitstg_t waitstg_new_yielding(void);
 extern void      waitstg_free(waitstg_t *wp);
 extern long      waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, seqbar_t seqbar);
 extern void      waitstg_signal_all_when_blocking(waitstg_t waitstg);

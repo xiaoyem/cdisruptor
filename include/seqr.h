@@ -22,30 +22,36 @@
 #define SEQR_INCLUDED
 
 #include <stdbool.h>
+#include "seq.h"
 #include "waitstg.h"
-
-/* FIXME */
-#define SINGLE 1
-#define MULTI  2
+#include "seqbar.h"
 
 /* FIXME: exported types */
 typedef struct waitstg_t *waitstg_t;
+typedef struct seqbar_t *seqbar_t;
 typedef struct seqr_t *seqr_t;
 
 /* FIXME: exported functions */
-extern seqr_t seqr_new(int bufsize, waitstg_t waitstg);
-extern void   seqr_free(seqr_t *sp);
-extern bool   seqr_has_avail_cap(seqr_t seqr, int requirecap);
-extern long   seqr_next(seqr_t seqr);
-extern long   seqr_next_n(seqr_t seqr, int n);
-extern long   seqr_try_next(seqr_t seqr);
-extern long   seqr_try_next_n(seqr_t seqr, int n);
-extern long   seqr_remaining_cap(seqr_t seqr);
-extern void   seqr_claim(seqr_t seqr, long seq);
-extern void   seqr_publish(seqr_t seqr, long seq);
-extern void   seqr_publish_batch(seqr_t seqr, long lo, long hi);
-extern bool   seqr_is_avail(seqr_t seqr, long seq);
-extern long   seqr_get_highest_published_seq(long nextseq, long availseq);
+extern seqr_t   seqr_new_single(int bufsize, waitstg_t waitstg);
+extern seqr_t   seqr_new_multi(int bufsize, waitstg_t waitstg);
+extern void     seqr_free(seqr_t *sp);
+extern int      seqr_get_bufsize(seqr_t seqr);
+extern long     seqr_get_cursor(seqr_t seqr);
+extern void     seqr_add_gatingseqs(seqr_t seqr, seq_t gatingseqs);
+extern void     seqr_remove_gatingseq(seqr_t seqr, seq_t gatingseq);
+extern long     seqr_get_min_seq(seqr_t seqr);
+extern seqbar_t seqr_new_bar(seqr_t seqr, seq_t seqs);
+extern bool     seqr_has_avail_cap(seqr_t seqr, int requirecap);
+extern long     seqr_remaining_cap(seqr_t seqr);
+extern void     seqr_claim(seqr_t seqr, long seq);
+extern long     seqr_next(seqr_t seqr);
+extern long     seqr_next_n(seqr_t seqr, int n);
+extern long     seqr_try_next(seqr_t seqr);
+extern long     seqr_try_next_n(seqr_t seqr, int n);
+extern void     seqr_publish(seqr_t seqr, long seq);
+extern void     seqr_publish_batch(seqr_t seqr, long lo, long hi);
+extern bool     seqr_is_avail(seqr_t seqr, long seq);
+extern long     seqr_get_highest_published_seq(seqr_t seqr, long nextseq, long availseq);
 
 #endif /* SEQR_INCLUDED */
 

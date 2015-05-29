@@ -5,7 +5,7 @@ AC_PREREQ([2.63])
 AC_INIT([cdisruptor], [0.0.1], [mengxiaoye@dce.com.cn])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([src/mem.c])
+AC_CONFIG_SRCDIR([src/seqr.c])
 
 # Checks for programs.
 AC_PROG_CC
@@ -24,7 +24,7 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memmove])
+AC_CHECK_FUNCS([clock_gettime memmove])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
