@@ -34,7 +34,7 @@ void *mem_alloc(size_t nbytes, const char *file, int line) {
 	NOT_USED(file);
 	NOT_USED(line);
 
-	if (nbytes < 1)
+	if (unlikely(nbytes < 1))
 		return NULL;
 	return malloc(nbytes);
 }
@@ -43,7 +43,7 @@ void *mem_calloc(size_t count, size_t nbytes, const char *file, int line) {
 	NOT_USED(file);
 	NOT_USED(line);
 
-	if (count < 1 || nbytes < 1)
+	if (unlikely(count < 1 || nbytes < 1))
 		return NULL;
 	return calloc(count, nbytes);
 }
@@ -53,7 +53,7 @@ void *mem_posixalign(size_t alignment, size_t nbytes, const char *file, int line
 	NOT_USED(file);
 	NOT_USED(line);
 
-	if (nbytes < 1)
+	if (unlikely(nbytes < 1))
 		return NULL;
 	if (posix_memalign(&p, alignment, nbytes) != 0)
 		return NULL;
@@ -72,7 +72,7 @@ void *mem_resize(void *p, size_t nbytes, const char *file, int line) {
 	NOT_USED(file);
 	NOT_USED(line);
 
-	if (nbytes < 1)
+	if (unlikely(nbytes < 1))
 		return NULL;
 	return realloc(p, nbytes);
 }
@@ -80,7 +80,7 @@ void *mem_resize(void *p, size_t nbytes, const char *file, int line) {
 char *mem_strndup(const char *str, size_t length) {
 	char *p;
 
-	if (str == NULL)
+	if (unlikely(str == NULL))
 		return NULL;
 	if ((p = malloc(length + 1)) == NULL)
 		return NULL;

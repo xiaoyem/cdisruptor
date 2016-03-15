@@ -18,22 +18,54 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <limits.h>
 #include "macros.h"
+#include "mem.h"
 #include "util.h"
+#include "seqgrp.h"
 
-long get_min_seq(seq_t *seqs, int length, long min) {
-	int i;
+/* FIXME */
+seqgrp_t seqgrp_new(seq_t *seqs, int length) {
+	seqgrp_t seqgrp;
 
-	for (i = 0; i < length; ++i)
-		min = MIN(min, seq_get(seqs[i]));
-	return min;
+	if (unlikely(NEW(seqgrp) == NULL))
+		return NULL;
+	seqgrp->length = length;
+	seqgrp->seqs   = seqs;
+	return seqgrp;
 }
 
-int lg2(int i) {
-	int r = 0;
+/* FIXME */
+void seqgrp_free(seqgrp_t *sgp) {
+	if (unlikely(sgp == NULL || *sgp == NULL))
+		return;
+	FREE(*sgp);
+}
 
-	while ((i >>= 1) != 0)
-		++r;
-	return r;
+/* FIXME */
+int seqgrp_size(seqgrp_t seqgrp) {
+	if (unlikely(seqgrp == NULL))
+		return 0;
+	return seqgrp->length;
+}
+
+/* FIXME */
+long seqgrp_get(seqgrp_t seqgrp) {
+	if (unlikely(seqgrp == NULL))
+		return LONG_MAX;
+	return get_min_seq(seqgrp->seqs, seqgrp->length, LONG_MAX);
+}
+
+/* FIXME */
+void seqgrp_set(seqgrp_t seqgrp, long val) {
+}
+
+/* FIXME */
+void seqgrp_add(seqgrp_t seqgrp, seq_t seq) {
+}
+
+/* FIXME */
+bool seqgrp_remove(seqgrp_t seqgrp, seq_t seq) {
+	return false;
 }
 
