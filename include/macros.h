@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -65,6 +65,14 @@
 			++p; \
 		} \
 	} while (0);
+
+#ifdef __GNUC__
+#define likely(x)   __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define likely(x)   !!(x)
+#define unlikely(x) !!(x)
+#endif
 
 #endif /* MACROS_INCLUDED */
 

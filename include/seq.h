@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -33,9 +33,7 @@ typedef struct seq_t {
 /* FIXME: exported functions */
 extern seq_t seq_new(void);
 extern seq_t seq_new_val(long val);
-extern seq_t seq_new_grp(seq_t *seqs, int len);
 extern void  seq_free(seq_t *sp);
-extern int   seq_length(seq_t seq);
 extern long  seq_get(seq_t seq);
 extern void  seq_set(seq_t seq, long val);
 extern bool  seq_comp_and_set(seq_t seq, long oldval, long newval);
