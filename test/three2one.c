@@ -18,26 +18,3 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SEQGRP_INCLUDED
-#define SEQGRP_INCLUDED
-
-#include <stdbool.h>
-#include "seq.h"
-
-/* FIXME: exported types */
-typedef struct seqgrp_t {
-	int	length;
-	seq_t	*seqs;
-} *seqgrp_t;
-
-/* FIXME: exported functions */
-extern seqgrp_t seqgrp_new(seq_t *seqs, int length);
-extern void     seqgrp_free(seqgrp_t *sgp);
-extern int      seqgrp_size(seqgrp_t seqgrp);
-extern long     seqgrp_get(seqgrp_t seqgrp);
-extern void     seqgrp_set(seqgrp_t seqgrp, long val);
-extern void     seqgrp_add(seqgrp_t seqgrp, seq_t seq);
-extern bool     seqgrp_remove(seqgrp_t seqgrp, seq_t seq);
-
-#endif /* SEQGRP_INCLUDED */
-
