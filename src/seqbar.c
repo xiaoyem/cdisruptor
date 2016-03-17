@@ -27,22 +27,22 @@
 struct seqbar_t {
 	seqr_t		seqr;
 	waitstg_t	waitstg;
-	seq_t		cursorseq;
+	seq_t		cursor;
 	seqgrp_t	depseqs;
 	bool		alerted;
 };
 
 /* FIXME */
-seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursorseq, seq_t* depseqs, int length) {
+seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursor, seq_t* depseqs, int length) {
 	seqbar_t seqbar;
 
-	if (unlikely(NEW0(seqbar) == NULL))
+	if (unlikely(NEW(seqbar) == NULL))
 		return NULL;
-	seqbar->seqr      = seqr;
-	seqbar->waitstg   = waitstg;
-	seqbar->cursorseq = cursorseq;
-	seqbar->depseqs   = length == 0 ? seqgrp_new(&cursorseq, 1) : seqgrp_new(depseqs, length);
-	seqbar->alerted   = false;
+	seqbar->seqr    = seqr;
+	seqbar->waitstg = waitstg;
+	seqbar->cursor  = cursor;
+	seqbar->depseqs = length == 0 ? seqgrp_new(&cursor, 1) : seqgrp_new(depseqs, length);
+	seqbar->alerted = false;
 	return seqbar;
 }
 
@@ -61,7 +61,7 @@ long seqbar_wait_for(seqbar_t seqbar, long seq) {
 		return -1L;
 	if (seqbar_is_alerted(seqbar))
 		return -1L;
-	availseq = waitstg_wait_for(seqbar->waitstg, seq, seqbar->cursorseq, seqbar->depseqs, seqbar);
+	availseq = waitstg_wait_for(seqbar->waitstg, seq, seqbar->cursor, seqbar->depseqs, seqbar);
 	if (availseq < seq)
 		return availseq;
 	return seqr_get_highest_published_seq(seqbar->seqr, seq, availseq);

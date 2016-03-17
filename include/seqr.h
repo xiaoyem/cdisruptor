@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -34,13 +34,13 @@ typedef struct seqr_t *seqr_t;
 /* FIXME: exported functions */
 extern seqr_t   seqr_new_single(int bufsize, waitstg_t waitstg);
 extern seqr_t   seqr_new_multi(int bufsize, waitstg_t waitstg);
-extern void     seqr_free(seqr_t *sp);
+extern void     seqr_free(seqr_t *srp);
 extern int      seqr_get_bufsize(seqr_t seqr);
 extern long     seqr_get_cursor(seqr_t seqr);
-extern void     seqr_add_gatingseqs(seqr_t seqr, seq_t gatingseqs);
+extern void     seqr_add_gatingseqs(seqr_t seqr, seq_t *gatingseqs, int length);
 extern void     seqr_remove_gatingseq(seqr_t seqr, seq_t gatingseq);
 extern long     seqr_get_min_seq(seqr_t seqr);
-extern seqbar_t seqr_new_bar(seqr_t seqr, seq_t seqs);
+extern seqbar_t seqr_new_bar(seqr_t seqr, seq_t *seqs, int length);
 extern bool     seqr_has_avail_cap(seqr_t seqr, int requirecap);
 extern long     seqr_remaining_cap(seqr_t seqr);
 extern void     seqr_claim(seqr_t seqr, long seq);

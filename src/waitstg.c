@@ -165,7 +165,7 @@ void waitstg_free(waitstg_t *wp) {
 
 /* wait for the given sequence to be available */
 long waitstg_wait_for(waitstg_t waitstg, long seq,
-	seq_t cursorseq, seqgrp_t depseqs, seqbar_t seqbar) {
+	seq_t cursor, seqgrp_t depseqs, seqbar_t seqbar) {
 	long availseq = -1L, starttime = 0;
 	int count;
 
@@ -173,9 +173,9 @@ long waitstg_wait_for(waitstg_t waitstg, long seq,
 		return -1L;
 	switch (waitstg->type) {
 	case BLOCKING:
-		if ((availseq = seq_get(cursorseq)) < seq) {
+		if ((availseq = seq_get(cursor)) < seq) {
 			pthread_mutex_lock(&waitstg->lock);
-			while ((availseq = seq_get(cursorseq)) < seq) {
+			while ((availseq = seq_get(cursor)) < seq) {
 				if (seqbar_is_alerted(seqbar)) {
 					pthread_mutex_unlock(&waitstg->lock);
 					return -1L;
@@ -194,18 +194,18 @@ long waitstg_wait_for(waitstg_t waitstg, long seq,
 				return -1L;
 		break;
 	case LITEBLOCKING:
-		if ((availseq = seq_get(cursorseq)) < seq) {
+		if ((availseq = seq_get(cursor)) < seq) {
 			pthread_mutex_lock(&waitstg->lock);
 			do {
 				(void)__atomic_exchange_n(&waitstg->signeeded, true, __ATOMIC_RELEASE);
-				if ((availseq = seq_get(cursorseq)) >= seq)
+				if ((availseq = seq_get(cursor)) >= seq)
 					break;
 				if (seqbar_is_alerted(seqbar)) {
 					pthread_mutex_unlock(&waitstg->lock);
 					return -1L;
 				}
 				pthread_cond_wait(&waitstg->cond, &waitstg->lock);
-			} while ((availseq = seq_get(cursorseq)) < seq);
+			} while ((availseq = seq_get(cursor)) < seq);
 			pthread_mutex_unlock(&waitstg->lock);
 		}
 		while ((availseq = seqgrp_get(depseqs)) < seq)
@@ -230,7 +230,7 @@ long waitstg_wait_for(waitstg_t waitstg, long seq,
 					delta = ts.tv_nsec - starttime;
 					if (delta > waitstg->yieldto)
 						return waitstg_wait_for(waitstg->fallbackstg,
-							seq, cursorseq, depseqs, seqbar);
+							seq, cursor, depseqs, seqbar);
 					else if (delta > waitstg->spinto)
 						sched_yield();
 				}
@@ -253,12 +253,12 @@ long waitstg_wait_for(waitstg_t waitstg, long seq,
 		}
 		break;
 	case TIMEOUTBLOCKING:
-		if ((availseq = seq_get(cursorseq)) < seq) {
+		if ((availseq = seq_get(cursor)) < seq) {
 			struct timespec ts;
 
 			ts.tv_nsec = waitstg->timeout;
 			pthread_mutex_lock(&waitstg->lock);
-			while ((availseq = seq_get(cursorseq)) < seq) {
+			while ((availseq = seq_get(cursor)) < seq) {
 				int ret;
 
 				if (seqbar_is_alerted(seqbar)) {

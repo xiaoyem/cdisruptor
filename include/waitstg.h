@@ -39,7 +39,7 @@ extern waitstg_t waitstg_new_timeoutblocking(long timeout);
 extern waitstg_t waitstg_new_yielding(void);
 extern void      waitstg_free(waitstg_t *wp);
 extern long      waitstg_wait_for(waitstg_t waitstg, long seq,
-			seq_t cursorseq, seqgrp_t depseqs, seqbar_t seqbar);
+			seq_t cursor, seqgrp_t depseqs, seqbar_t seqbar);
 extern void      waitstg_signal_all_when_blocking(waitstg_t waitstg);
 
 #endif /* WAITSTG_INCLUDED */
