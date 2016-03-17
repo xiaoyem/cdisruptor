@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
+#include "macros.h"
 #include "mem.h"
 #include "waitstg.h"
 
@@ -53,7 +54,7 @@ waitstg_t waitstg_new_blocking(void) {
 	waitstg_t waitstg;
 	pthread_mutexattr_t mattr;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type = BLOCKING;
 	pthread_mutexattr_init(&mattr);
@@ -68,7 +69,7 @@ waitstg_t waitstg_new_blocking(void) {
 waitstg_t waitstg_new_busyspin(void) {
 	waitstg_t waitstg;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type = BUSYSPIN;
 	return waitstg;
@@ -79,7 +80,7 @@ waitstg_t waitstg_new_liteblocking(void) {
 	waitstg_t waitstg;
 	pthread_mutexattr_t mattr;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type      = LITEBLOCKING;
 	pthread_mutexattr_init(&mattr);
@@ -95,7 +96,7 @@ waitstg_t waitstg_new_liteblocking(void) {
 waitstg_t waitstg_new_phasedbackoff(long spinto, long yieldto, waitstg_t fallbackstg) {
 	waitstg_t waitstg;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type        = PHASEDBACKOFF;
 	waitstg->spinto      = spinto;
@@ -108,7 +109,7 @@ waitstg_t waitstg_new_phasedbackoff(long spinto, long yieldto, waitstg_t fallbac
 waitstg_t waitstg_new_sleeping(int retries) {
 	waitstg_t waitstg;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type    = SLEEPING;
 	waitstg->retries = retries > 0 ? retries : 200;
@@ -120,7 +121,7 @@ waitstg_t waitstg_new_timeoutblocking(long timeout) {
 	waitstg_t waitstg;
 	pthread_mutexattr_t mattr;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type    = TIMEOUTBLOCKING;
 	pthread_mutexattr_init(&mattr);
@@ -136,7 +137,7 @@ waitstg_t waitstg_new_timeoutblocking(long timeout) {
 waitstg_t waitstg_new_yielding(void) {
 	waitstg_t waitstg;
 
-	if (NEW(waitstg) == NULL)
+	if (unlikely(NEW(waitstg) == NULL))
 		return NULL;
 	waitstg->type = YIELDING;
 	return waitstg;
@@ -144,7 +145,7 @@ waitstg_t waitstg_new_yielding(void) {
 
 /* FIXME */
 void waitstg_free(waitstg_t *wp) {
-	if (wp == NULL || *wp == NULL)
+	if (unlikely(wp == NULL || *wp == NULL))
 		return;
 	switch ((*wp)->type) {
 	case BLOCKING:
@@ -163,15 +164,18 @@ void waitstg_free(waitstg_t *wp) {
 }
 
 /* wait for the given sequence to be available */
-long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, seqbar_t seqbar) {
+long waitstg_wait_for(waitstg_t waitstg, long seq,
+	seq_t cursorseq, seqgrp_t depseqs, seqbar_t seqbar) {
 	long availseq = -1L, starttime = 0;
 	int count;
 
+	if (unlikely(waitstg == NULL))
+		return -1L;
 	switch (waitstg->type) {
 	case BLOCKING:
-		if ((availseq = seq_get(cursor)) < seq) {
+		if ((availseq = seq_get(cursorseq)) < seq) {
 			pthread_mutex_lock(&waitstg->lock);
-			while ((availseq = seq_get(cursor)) < seq) {
+			while ((availseq = seq_get(cursorseq)) < seq) {
 				if (seqbar_is_alerted(seqbar)) {
 					pthread_mutex_unlock(&waitstg->lock);
 					return -1L;
@@ -180,38 +184,38 @@ long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, s
 			}
 			pthread_mutex_unlock(&waitstg->lock);
 		}
-		while ((availseq = seq_get(depseq)) < seq)
+		while ((availseq = seqgrp_get(depseqs)) < seq)
 			if (seqbar_is_alerted(seqbar))
 				return -1L;
 		break;
 	case BUSYSPIN:
-		while ((availseq = seq_get(depseq)) < seq)
+		while ((availseq = seqgrp_get(depseqs)) < seq)
 			if (seqbar_is_alerted(seqbar))
 				return -1L;
 		break;
 	case LITEBLOCKING:
-		if ((availseq = seq_get(cursor)) < seq) {
+		if ((availseq = seq_get(cursorseq)) < seq) {
 			pthread_mutex_lock(&waitstg->lock);
 			do {
 				(void)__atomic_exchange_n(&waitstg->signeeded, true, __ATOMIC_RELEASE);
-				if ((availseq = seq_get(cursor)) >= seq)
+				if ((availseq = seq_get(cursorseq)) >= seq)
 					break;
 				if (seqbar_is_alerted(seqbar)) {
 					pthread_mutex_unlock(&waitstg->lock);
 					return -1L;
 				}
 				pthread_cond_wait(&waitstg->cond, &waitstg->lock);
-			} while ((availseq = seq_get(cursor)) < seq);
+			} while ((availseq = seq_get(cursorseq)) < seq);
 			pthread_mutex_unlock(&waitstg->lock);
 		}
-		while ((availseq = seq_get(depseq)) < seq)
+		while ((availseq = seqgrp_get(depseqs)) < seq)
 			if (seqbar_is_alerted(seqbar))
 				return -1L;
 		break;
 	case PHASEDBACKOFF:
 		count = 10000;
 		do {
-			if ((availseq = seq_get(depseq)) >= seq)
+			if ((availseq = seqgrp_get(depseqs)) >= seq)
 				return availseq;
 			if (--count == 0) {
 				struct timespec ts;
@@ -226,7 +230,7 @@ long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, s
 					delta = ts.tv_nsec - starttime;
 					if (delta > waitstg->yieldto)
 						return waitstg_wait_for(waitstg->fallbackstg,
-							seq, cursor, depseq, seqbar);
+							seq, cursorseq, depseqs, seqbar);
 					else if (delta > waitstg->spinto)
 						sched_yield();
 				}
@@ -236,7 +240,7 @@ long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, s
 		break;
 	case SLEEPING:
 		count = waitstg->retries;
-		while ((availseq = seq_get(depseq)) < seq) {
+		while ((availseq = seqgrp_get(depseqs)) < seq) {
 			if (seqbar_is_alerted(seqbar))
 				return -1L;
 			if (count > 100)
@@ -249,12 +253,12 @@ long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, s
 		}
 		break;
 	case TIMEOUTBLOCKING:
-		if ((availseq = seq_get(cursor)) < seq) {
+		if ((availseq = seq_get(cursorseq)) < seq) {
 			struct timespec ts;
 
 			ts.tv_nsec = waitstg->timeout;
 			pthread_mutex_lock(&waitstg->lock);
-			while ((availseq = seq_get(cursor)) < seq) {
+			while ((availseq = seq_get(cursorseq)) < seq) {
 				int ret;
 
 				if (seqbar_is_alerted(seqbar)) {
@@ -269,13 +273,13 @@ long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, s
 			}
 			pthread_mutex_unlock(&waitstg->lock);
 		}
-		while ((availseq = seq_get(depseq)) < seq)
+		while ((availseq = seqgrp_get(depseqs)) < seq)
 			if (seqbar_is_alerted(seqbar))
 				return -1L;
 		break;
 	case YIELDING:
 		count = 100;
-		while ((availseq = seq_get(depseq)) < seq) {
+		while ((availseq = seqgrp_get(depseqs)) < seq) {
 			if (seqbar_is_alerted(seqbar))
 				return -1L;
 			if (count == 0)
@@ -290,6 +294,8 @@ long waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, s
 
 /* FIXME */
 void waitstg_signal_all_when_blocking(waitstg_t waitstg) {
+	if (unlikely(waitstg == NULL))
+		return;
 	switch (waitstg->type) {
 	case BLOCKING:
 		pthread_mutex_lock(&waitstg->lock);

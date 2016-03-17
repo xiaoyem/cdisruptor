@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -22,6 +22,7 @@
 #define WAITSTG_INCLUDED
 
 #include "seq.h"
+#include "seqgrp.h"
 #include "seqbar.h"
 
 /* FIXME: exported types */
@@ -37,7 +38,8 @@ extern waitstg_t waitstg_new_sleeping(int retries);
 extern waitstg_t waitstg_new_timeoutblocking(long timeout);
 extern waitstg_t waitstg_new_yielding(void);
 extern void      waitstg_free(waitstg_t *wp);
-extern long      waitstg_wait_for(waitstg_t waitstg, long seq, seq_t cursor, seq_t depseq, seqbar_t seqbar);
+extern long      waitstg_wait_for(waitstg_t waitstg, long seq,
+			seq_t cursorseq, seqgrp_t depseqs, seqbar_t seqbar);
 extern void      waitstg_signal_all_when_blocking(waitstg_t waitstg);
 
 #endif /* WAITSTG_INCLUDED */

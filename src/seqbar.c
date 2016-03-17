@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -18,7 +18,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "macros.h"
 #include "mem.h"
+#include "seqgrp.h"
 #include "seqbar.h"
 
 /* FIXME */
@@ -26,43 +28,40 @@ struct seqbar_t {
 	seqr_t		seqr;
 	waitstg_t	waitstg;
 	seq_t		cursorseq;
-	seq_t		depseq;
+	seqgrp_t	depseqs;
 	bool		alerted;
 };
 
 /* FIXME */
-seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursorseq, seq_t depseqs) {
+seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursorseq, seq_t* depseqs, int length) {
 	seqbar_t seqbar;
 
-	if (NEW(seqbar) == NULL)
+	if (unlikely(NEW0(seqbar) == NULL))
 		return NULL;
 	seqbar->seqr      = seqr;
 	seqbar->waitstg   = waitstg;
 	seqbar->cursorseq = cursorseq;
-	if (seq_length(depseqs) == 0)
-		seqbar->depseq = cursorseq;
-	else
-		seqbar->depseq = depseqs;
+	seqbar->depseqs   = length == 0 ? seqgrp_new(&cursorseq, 1) : seqgrp_new(depseqs, length);
 	seqbar->alerted   = false;
 	return seqbar;
 }
 
 /* FIXME */
-void seqbar_free(seqbar_t *sp) {
-	if (sp == NULL || *sp == NULL)
+void seqbar_free(seqbar_t *sbp) {
+	if (unlikely(sbp == NULL || *sbp == NULL))
 		return;
-	FREE(*sp);
+	FREE(*sbp);
 }
 
 /* wait for the given sequence to be available for consumption */
 long seqbar_wait_for(seqbar_t seqbar, long seq) {
 	long availseq;
 
-	if (seqbar == NULL)
+	if (unlikely(seqbar == NULL))
 		return -1L;
 	if (seqbar_is_alerted(seqbar))
 		return -1L;
-	availseq = waitstg_wait_for(seqbar->waitstg, seq, seqbar->cursorseq, seqbar->depseq, seqbar);
+	availseq = waitstg_wait_for(seqbar->waitstg, seq, seqbar->cursorseq, seqbar->depseqs, seqbar);
 	if (availseq < seq)
 		return availseq;
 	return seqr_get_highest_published_seq(seqbar->seqr, seq, availseq);
@@ -70,16 +69,16 @@ long seqbar_wait_for(seqbar_t seqbar, long seq) {
 
 /* get the current cursor value that can be read */
 long seqbar_get_cursor(seqbar_t seqbar) {
-	if (seqbar == NULL)
+	if (unlikely(seqbar == NULL))
 		return -1L;
-	return seq_get(seqbar->depseq);
+	return seqgrp_get(seqbar->depseqs);
 }
 
 /* the current alert status for the barrier */
 bool seqbar_is_alerted(seqbar_t seqbar) {
 	bool *alerted_;
 
-	if (seqbar == NULL)
+	if (unlikely(seqbar == NULL))
 		return false;
 	alerted_ = (void *)seqbar + offsetof(struct seqbar_t, alerted);
 	return __atomic_load_n(alerted_, __ATOMIC_ACQUIRE);
@@ -89,7 +88,7 @@ bool seqbar_is_alerted(seqbar_t seqbar) {
 void seqbar_alert(seqbar_t seqbar) {
 	bool *alerted_;
 
-	if (seqbar == NULL)
+	if (unlikely(seqbar == NULL))
 		return;
 	alerted_ = (void *)seqbar + offsetof(struct seqbar_t, alerted);
 	__atomic_store_n(alerted_, true, __ATOMIC_RELEASE);
@@ -99,7 +98,7 @@ void seqbar_alert(seqbar_t seqbar) {
 void seqbar_clear_alert(seqbar_t seqbar) {
 	bool *alerted_;
 
-	if (seqbar == NULL)
+	if (unlikely(seqbar == NULL))
 		return;
 	alerted_ = (void *)seqbar + offsetof(struct seqbar_t, alerted);
 	__atomic_store_n(alerted_, false, __ATOMIC_RELEASE);

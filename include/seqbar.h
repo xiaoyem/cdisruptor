@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -27,11 +27,14 @@
 #include "seqr.h"
 
 /* FIXME: exported types */
+typedef struct waitstg_t *waitstg_t;
 typedef struct seqbar_t *seqbar_t;
+typedef struct seqr_t *seqr_t;
 
 /* FIXME: exported functions */
-extern seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursorseq, seq_t depseqs);
-extern void     seqbar_free(seqbar_t *sp);
+extern seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg,
+			seq_t cursorseq, seq_t* depseqs, int length);
+extern void     seqbar_free(seqbar_t *sbp);
 extern long     seqbar_wait_for(seqbar_t seqbar, long seq);
 extern long     seqbar_get_cursor(seqbar_t seqbar);
 extern bool     seqbar_is_alerted(seqbar_t seqbar);
