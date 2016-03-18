@@ -34,7 +34,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = src
+noinst_PROGRAMS = one2one$(EXEEXT) three2one$(EXEEXT)
+subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -46,39 +47,19 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-libcdisruptor_la_LIBADD =
-am_libcdisruptor_la_OBJECTS = libcdisruptor_la-mem.lo \
-	libcdisruptor_la-seq.lo libcdisruptor_la-seqgrp.lo \
-	libcdisruptor_la-waitstg.lo libcdisruptor_la-seqbar.lo \
-	libcdisruptor_la-seqr.lo libcdisruptor_la-ringbuf.lo \
-	libcdisruptor_la-util.lo
-libcdisruptor_la_OBJECTS = $(am_libcdisruptor_la_OBJECTS)
-libcdisruptor_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libcdisruptor_la_CFLAGS) \
-	$(CFLAGS) $(libcdisruptor_la_LDFLAGS) $(LDFLAGS) -o $@
+PROGRAMS = $(noinst_PROGRAMS)
+am_one2one_OBJECTS = one2one-one2one.$(OBJEXT)
+one2one_OBJECTS = $(am_one2one_OBJECTS)
+one2one_LDADD = $(LDADD)
+one2one_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(one2one_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am_three2one_OBJECTS = three2one-three2one.$(OBJEXT)
+three2one_OBJECTS = $(am_three2one_OBJECTS)
+three2one_LDADD = $(LDADD)
+three2one_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(three2one_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -92,8 +73,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libcdisruptor_la_SOURCES)
-DIST_SOURCES = $(libcdisruptor_la_SOURCES)
+SOURCES = $(one2one_SOURCES) $(three2one_SOURCES)
+DIST_SOURCES = $(one2one_SOURCES) $(three2one_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -207,13 +188,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-lib_LTLIBRARIES = libcdisruptor.la
-libcdisruptor_la_SOURCES = mem.c seq.c seqgrp.c waitstg.c seqbar.c seqr.c      \
-ringbuf.c util.c
-
-libcdisruptor_la_CPPFLAGS = -I$(top_srcdir)/include
-libcdisruptor_la_CFLAGS = -fPIC -Wall -pthread
-libcdisruptor_la_LDFLAGS = -release 0.0.1 -version-info 0:0:0
+one2one_SOURCES = one2one.c
+one2one_CPPFLAGS = -I$(top_srcdir)/include
+one2one_CFLAGS = -Wall -Winline
+three2one_SOURCES = three2one.c
+three2one_CPPFLAGS = -I$(top_srcdir)/include
+three2one_CFLAGS = -Wall -Winline
 all: all-am
 
 .SUFFIXES:
@@ -227,9 +207,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu test/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/Makefile
+	  $(AUTOMAKE) --gnu test/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -248,39 +228,21 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	list2=; for p in $$list; do \
-	  if test -f $$p; then \
-	    list2="$$list2 $$p"; \
-	  else :; fi; \
-	done; \
-	test -z "$$list2" || { \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-	}
 
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
-	done
-
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
-	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
-	  test "$$dir" != "$$p" || dir=.; \
-	  echo "rm -f \"$${dir}/so_locations\""; \
-	  rm -f "$${dir}/so_locations"; \
-	done
-libcdisruptor.la: $(libcdisruptor_la_OBJECTS) $(libcdisruptor_la_DEPENDENCIES) 
-	$(libcdisruptor_la_LINK) -rpath $(libdir) $(libcdisruptor_la_OBJECTS) $(libcdisruptor_la_LIBADD) $(LIBS)
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+one2one$(EXEEXT): $(one2one_OBJECTS) $(one2one_DEPENDENCIES) 
+	@rm -f one2one$(EXEEXT)
+	$(one2one_LINK) $(one2one_OBJECTS) $(one2one_LDADD) $(LIBS)
+three2one$(EXEEXT): $(three2one_OBJECTS) $(three2one_DEPENDENCIES) 
+	@rm -f three2one$(EXEEXT)
+	$(three2one_LINK) $(three2one_OBJECTS) $(three2one_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -288,14 +250,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-mem.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-ringbuf.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-seq.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-seqbar.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-seqgrp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-seqr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-util.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-waitstg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-one2one.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/three2one-three2one.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -318,61 +274,33 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-libcdisruptor_la-mem.lo: mem.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-mem.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-mem.Tpo -c -o libcdisruptor_la-mem.lo `test -f 'mem.c' || echo '$(srcdir)/'`mem.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-mem.Tpo $(DEPDIR)/libcdisruptor_la-mem.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mem.c' object='libcdisruptor_la-mem.lo' libtool=yes @AMDEPBACKSLASH@
+one2one-one2one.o: one2one.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-one2one.o -MD -MP -MF $(DEPDIR)/one2one-one2one.Tpo -c -o one2one-one2one.o `test -f 'one2one.c' || echo '$(srcdir)/'`one2one.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-one2one.Tpo $(DEPDIR)/one2one-one2one.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='one2one.c' object='one2one-one2one.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-mem.lo `test -f 'mem.c' || echo '$(srcdir)/'`mem.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-one2one.o `test -f 'one2one.c' || echo '$(srcdir)/'`one2one.c
 
-libcdisruptor_la-seq.lo: seq.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-seq.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-seq.Tpo -c -o libcdisruptor_la-seq.lo `test -f 'seq.c' || echo '$(srcdir)/'`seq.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-seq.Tpo $(DEPDIR)/libcdisruptor_la-seq.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seq.c' object='libcdisruptor_la-seq.lo' libtool=yes @AMDEPBACKSLASH@
+one2one-one2one.obj: one2one.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-one2one.obj -MD -MP -MF $(DEPDIR)/one2one-one2one.Tpo -c -o one2one-one2one.obj `if test -f 'one2one.c'; then $(CYGPATH_W) 'one2one.c'; else $(CYGPATH_W) '$(srcdir)/one2one.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-one2one.Tpo $(DEPDIR)/one2one-one2one.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='one2one.c' object='one2one-one2one.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-seq.lo `test -f 'seq.c' || echo '$(srcdir)/'`seq.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-one2one.obj `if test -f 'one2one.c'; then $(CYGPATH_W) 'one2one.c'; else $(CYGPATH_W) '$(srcdir)/one2one.c'; fi`
 
-libcdisruptor_la-seqgrp.lo: seqgrp.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-seqgrp.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-seqgrp.Tpo -c -o libcdisruptor_la-seqgrp.lo `test -f 'seqgrp.c' || echo '$(srcdir)/'`seqgrp.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-seqgrp.Tpo $(DEPDIR)/libcdisruptor_la-seqgrp.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seqgrp.c' object='libcdisruptor_la-seqgrp.lo' libtool=yes @AMDEPBACKSLASH@
+three2one-three2one.o: three2one.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -MT three2one-three2one.o -MD -MP -MF $(DEPDIR)/three2one-three2one.Tpo -c -o three2one-three2one.o `test -f 'three2one.c' || echo '$(srcdir)/'`three2one.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/three2one-three2one.Tpo $(DEPDIR)/three2one-three2one.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='three2one.c' object='three2one-three2one.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-seqgrp.lo `test -f 'seqgrp.c' || echo '$(srcdir)/'`seqgrp.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -c -o three2one-three2one.o `test -f 'three2one.c' || echo '$(srcdir)/'`three2one.c
 
-libcdisruptor_la-waitstg.lo: waitstg.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-waitstg.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-waitstg.Tpo -c -o libcdisruptor_la-waitstg.lo `test -f 'waitstg.c' || echo '$(srcdir)/'`waitstg.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-waitstg.Tpo $(DEPDIR)/libcdisruptor_la-waitstg.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='waitstg.c' object='libcdisruptor_la-waitstg.lo' libtool=yes @AMDEPBACKSLASH@
+three2one-three2one.obj: three2one.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -MT three2one-three2one.obj -MD -MP -MF $(DEPDIR)/three2one-three2one.Tpo -c -o three2one-three2one.obj `if test -f 'three2one.c'; then $(CYGPATH_W) 'three2one.c'; else $(CYGPATH_W) '$(srcdir)/three2one.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/three2one-three2one.Tpo $(DEPDIR)/three2one-three2one.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='three2one.c' object='three2one-three2one.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-waitstg.lo `test -f 'waitstg.c' || echo '$(srcdir)/'`waitstg.c
-
-libcdisruptor_la-seqbar.lo: seqbar.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-seqbar.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-seqbar.Tpo -c -o libcdisruptor_la-seqbar.lo `test -f 'seqbar.c' || echo '$(srcdir)/'`seqbar.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-seqbar.Tpo $(DEPDIR)/libcdisruptor_la-seqbar.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seqbar.c' object='libcdisruptor_la-seqbar.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-seqbar.lo `test -f 'seqbar.c' || echo '$(srcdir)/'`seqbar.c
-
-libcdisruptor_la-seqr.lo: seqr.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-seqr.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-seqr.Tpo -c -o libcdisruptor_la-seqr.lo `test -f 'seqr.c' || echo '$(srcdir)/'`seqr.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-seqr.Tpo $(DEPDIR)/libcdisruptor_la-seqr.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seqr.c' object='libcdisruptor_la-seqr.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-seqr.lo `test -f 'seqr.c' || echo '$(srcdir)/'`seqr.c
-
-libcdisruptor_la-ringbuf.lo: ringbuf.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-ringbuf.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-ringbuf.Tpo -c -o libcdisruptor_la-ringbuf.lo `test -f 'ringbuf.c' || echo '$(srcdir)/'`ringbuf.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-ringbuf.Tpo $(DEPDIR)/libcdisruptor_la-ringbuf.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ringbuf.c' object='libcdisruptor_la-ringbuf.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-ringbuf.lo `test -f 'ringbuf.c' || echo '$(srcdir)/'`ringbuf.c
-
-libcdisruptor_la-util.lo: util.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-util.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-util.Tpo -c -o libcdisruptor_la-util.lo `test -f 'util.c' || echo '$(srcdir)/'`util.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-util.Tpo $(DEPDIR)/libcdisruptor_la-util.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='util.c' object='libcdisruptor_la-util.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-util.lo `test -f 'util.c' || echo '$(srcdir)/'`util.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -c -o three2one-three2one.obj `if test -f 'three2one.c'; then $(CYGPATH_W) 'three2one.c'; else $(CYGPATH_W) '$(srcdir)/three2one.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -464,11 +392,8 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(PROGRAMS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
-	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -496,7 +421,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -523,7 +448,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am:
 
 install-html: install-html-am
 
@@ -563,23 +488,22 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am:
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool ctags distclean \
+	clean-libtool clean-noinstPROGRAMS ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-libLTLIBRARIES
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
