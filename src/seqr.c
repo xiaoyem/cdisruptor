@@ -3,19 +3,18 @@
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <unistd.h>
@@ -75,7 +74,9 @@ static void seqr_set_avail(seqr_t seqr, long seq) {
 seqr_t seqr_new_single(int bufsize, waitstg_t waitstg) {
 	seqr_t seqr;
 
-	if (unlikely(bufsize < 1 || bufsize & (bufsize - 1)))
+	if (unlikely(bufsize < 1))
+		return NULL;
+	if (bufsize & (bufsize - 1))
 		return NULL;
 	if (NEW(seqr) == NULL)
 		return NULL;
@@ -93,7 +94,9 @@ seqr_t seqr_new_single(int bufsize, waitstg_t waitstg) {
 seqr_t seqr_new_multi(int bufsize, waitstg_t waitstg) {
 	seqr_t seqr;
 
-	if (unlikely(bufsize < 1 || bufsize & (bufsize - 1)))
+	if (unlikely(bufsize < 1))
+		return NULL;
+	if (bufsize & (bufsize - 1))
 		return NULL;
 	if (NEW(seqr) == NULL)
 		return NULL;
@@ -135,18 +138,21 @@ long seqr_get_cursor(seqr_t seqr) {
 
 /* add the specified gating sequences to this instance of the disruptor */
 void seqr_add_gatingseqs(seqr_t seqr, seq_t *gatingseqs, int length) {
-	/* FIXME */
+	NOT_USED(seqr);
+	NOT_USED(gatingseqs);
+	NOT_USED(length);
 }
 
 /* remove the specified sequence from this sequencer */
 void seqr_remove_gatingseq(seqr_t seqr, seq_t gatingseq) {
-	/* FIXME */
+	NOT_USED(seqr);
+	NOT_USED(gatingseq);
 }
 
-/* get the minimum sequence value from all of the gating sequences added to this ringBuffer */
+/* get the minimum sequence value from all of the gating sequences added to this ring buffer */
 long seqr_get_min_seq(seqr_t seqr) {
 	if (unlikely(seqr == NULL))
-		return 0;
+		return -1L;
 	return get_min_seq(seqr->gatingseqs->seqs, seqr->gatingseqs->length, seq_get(seqr->cursor));
 }
 
