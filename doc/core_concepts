@@ -43,3 +43,15 @@ consumer for the Disruptor.
 Producer: This is the user code that calls the Disruptor to enqueue Events. This
 concept also has no representation in the code.
 
+Optionally Lock-free: Another key implementation detail pushed by the desire for
+low-latency is the extensive use of lock-free algorithms to implement the
+Disruptor. All of the memory visibility and correctness guarantees are
+implemented using memory barriers and/or compare-and-swap operations. There is
+only one use-case where a actual lock is required and that is within the
+BlockingWaitStrategy. This is done solely for the purpose of using a Condition
+so that a consuming thread can be parked while waiting for new events to arrive.
+Many low-latency systems will use a busy-wait to avoid the jitter that can be
+incurred by using a Condition, however in number of system busy-wait operations
+can lead to significant degradation in performance, especially where the CPU
+resources are heavily constrained. E.g. web servers in virtualised-environments.
+
