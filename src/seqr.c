@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2017, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -119,6 +119,10 @@ seqr_t seqr_new_multi(int bufsize, waitstg_t waitstg) {
 void seqr_free(seqr_t *srp) {
 	if (unlikely(srp == NULL || *srp == NULL))
 		return;
+	seq_free(&(*srp)->cursor);
+	seqgrp_free(&(*srp)->gatingseqs);
+	if ((*srp)->type == MULTI)
+		seq_free(&(*srp)->u.m.gatingseqcache);
 	FREE(*srp);
 }
 
@@ -136,14 +140,14 @@ long seqr_get_cursor(seqr_t seqr) {
 	return seq_get(seqr->cursor);
 }
 
-/* add the specified gating sequences to this instance of the disruptor */
+/* FIXME: add the specified gating sequences to this instance of the disruptor */
 void seqr_add_gatingseqs(seqr_t seqr, seq_t *gatingseqs, int length) {
 	NOT_USED(seqr);
 	NOT_USED(gatingseqs);
 	NOT_USED(length);
 }
 
-/* remove the specified sequence from this sequencer */
+/* FIXME: remove the specified sequence from this sequencer */
 void seqr_remove_gatingseq(seqr_t seqr, seq_t gatingseq) {
 	NOT_USED(seqr);
 	NOT_USED(gatingseq);

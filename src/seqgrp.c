@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2017, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -57,8 +57,12 @@ long seqgrp_get(seqgrp_t seqgrp) {
 
 /* FIXME */
 void seqgrp_set(seqgrp_t seqgrp, long val) {
-	NOT_USED(seqgrp);
-	NOT_USED(val);
+	int i, size;
+
+	if (unlikely(seqgrp == NULL))
+		return;
+	for (i = 0, size = seqgrp->length; i < size; ++i)
+		seq_set(seqgrp->seqs[i], val);
 }
 
 /* FIXME */

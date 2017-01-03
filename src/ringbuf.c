@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2017, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -35,16 +35,47 @@ struct ringbuf_t {
 
 /* FIXME */
 ringbuf_t ringbuf_new_single(int bufsize, waitstg_t waitstg) {
-	return NULL;
+	ringbuf_t ringbuf;
+
+	if (unlikely(bufsize < 1))
+		return NULL;
+	if (bufsize & (bufsize - 1))
+		return NULL;
+	if (NEW(ringbuf) == NULL)
+		return NULL;
+	if ((ringbuf->entries = ALLOC(bufsize * sizeof (void *) + 2 * 128)) == NULL)
+		return NULL;
+	ringbuf->idxmask = bufsize - 1;
+	ringbuf->seqr    = seqr_new_single(bufsize, waitstg);
+	ringbuf->bufsize = seqr_get_bufsize(ringbuf->seqr);
+	return ringbuf;
 }
 
 /* FIXME */
 ringbuf_t ringbuf_new_multi(int bufsize, waitstg_t waitstg) {
-	return NULL;
+	ringbuf_t ringbuf;
+
+	if (unlikely(bufsize < 1))
+		return NULL;
+	if (bufsize & (bufsize - 1))
+		return NULL;
+	if (NEW(ringbuf) == NULL)
+		return NULL;
+	if ((ringbuf->entries = ALLOC(bufsize * sizeof (void *) + 2 * 128)) == NULL)
+		return NULL;
+	ringbuf->idxmask = bufsize - 1;
+	ringbuf->seqr    = seqr_new_multi(bufsize, waitstg);
+	ringbuf->bufsize = seqr_get_bufsize(ringbuf->seqr);
+	return ringbuf;
 }
 
 /* FIXME */
 void ringbuf_free(ringbuf_t *rp) {
+	if (unlikely(rp == NULL || *rp == NULL))
+		return;
+	FREE((*rp)->entries);
+	seqr_free(&(*rp)->seqr);
+	FREE(*rp);
 }
 
 /* the size of the buffer */
@@ -105,7 +136,12 @@ long ringbuf_remaining_cap(ringbuf_t ringbuf) {
 
 /* get the event for a given sequence in the ring buffer */
 void *ringbuf_get(ringbuf_t ringbuf, long seq) {
-	return NULL;
+	void *base;
+
+	if (unlikely(ringbuf == NULL))
+		return NULL;
+	base = (char *)ringbuf->entries + 128;
+	return base + (seq & ringbuf->idxmask);
 }
 
 /* set the cursor to a specific sequence and return the preallocated entry that is stored there */

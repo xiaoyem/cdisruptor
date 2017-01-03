@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Dalian Futures Information Technology Co., Ltd.
+ * Copyright (c) 2015-2017, Dalian Futures Information Technology Co., Ltd.
  *
  * Xiaoye Meng <mengxiaoye at dce dot com dot cn>
  *
@@ -49,6 +49,7 @@ seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursor, seq_t* depseqs
 void seqbar_free(seqbar_t *sbp) {
 	if (unlikely(sbp == NULL || *sbp == NULL))
 		return;
+	seqgrp_free(&(*sbp)->depseqs);
 	FREE(*sbp);
 }
 
