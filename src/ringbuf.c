@@ -27,7 +27,7 @@
 struct ringbuf_t {
 	long	p1, p2, p3, p4, p5, p6, p7;
 	long	idxmask;
-	void	**entries;
+	event_t	*entries;
 	int	bufsize;
 	seqr_t	seqr;
 	long	p9, p10, p11, p12, p13, p14, p15;
@@ -43,7 +43,7 @@ ringbuf_t ringbuf_new_single(int bufsize, waitstg_t waitstg) {
 		return NULL;
 	if (NEW(ringbuf) == NULL)
 		return NULL;
-	if ((ringbuf->entries = ALLOC(bufsize * sizeof (void *) + 2 * 128)) == NULL)
+	if ((ringbuf->entries = ALLOC(bufsize * sizeof (event_t) + 2 * 128)) == NULL)
 		return NULL;
 	ringbuf->idxmask = bufsize - 1;
 	ringbuf->seqr    = seqr_new_single(bufsize, waitstg);
@@ -61,7 +61,7 @@ ringbuf_t ringbuf_new_multi(int bufsize, waitstg_t waitstg) {
 		return NULL;
 	if (NEW(ringbuf) == NULL)
 		return NULL;
-	if ((ringbuf->entries = ALLOC(bufsize * sizeof (void *) + 2 * 128)) == NULL)
+	if ((ringbuf->entries = ALLOC(bufsize * sizeof (event_t) + 2 * 128)) == NULL)
 		return NULL;
 	ringbuf->idxmask = bufsize - 1;
 	ringbuf->seqr    = seqr_new_multi(bufsize, waitstg);
@@ -135,17 +135,17 @@ long ringbuf_remaining_cap(ringbuf_t ringbuf) {
 }
 
 /* get the event for a given sequence in the ring buffer */
-void *ringbuf_get(ringbuf_t ringbuf, long seq) {
-	void *base;
+event_t *ringbuf_get(ringbuf_t ringbuf, long seq) {
+	event_t *base;
 
 	if (unlikely(ringbuf == NULL))
 		return NULL;
-	base = (char *)ringbuf->entries + 128;
+	base = (event_t *)((char *)ringbuf->entries + 128);
 	return base + (seq & ringbuf->idxmask);
 }
 
 /* set the cursor to a specific sequence and return the preallocated entry that is stored there */
-void *ringbuf_claim_and_get(ringbuf_t ringbuf, long seq) {
+event_t *ringbuf_claim_and_get(ringbuf_t ringbuf, long seq) {
 	if (unlikely(ringbuf == NULL))
 		return NULL;
 	seqr_claim(ringbuf->seqr, seq);

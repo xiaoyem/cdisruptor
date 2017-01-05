@@ -24,6 +24,7 @@
 #include "seq.h"
 #include "waitstg.h"
 #include "seqbar.h"
+#include "event.h"
 
 /* FIXME: exported types */
 typedef struct ringbuf_t *ringbuf_t;
@@ -40,8 +41,8 @@ extern long      ringbuf_get_min_gatingseq(ringbuf_t ringbuf);
 extern seqbar_t  ringbuf_new_bar(ringbuf_t ringbuf, seq_t *seqs, int length);
 extern bool      ringbuf_has_avail_cap(ringbuf_t ringbuf, int requiredcap);
 extern long      ringbuf_remaining_cap(ringbuf_t ringbuf);
-extern void     *ringbuf_get(ringbuf_t ringbuf, long seq);
-extern void     *ringbuf_claim_and_get(ringbuf_t ringbuf, long seq);
+extern event_t  *ringbuf_get(ringbuf_t ringbuf, long seq);
+extern event_t  *ringbuf_claim_and_get(ringbuf_t ringbuf, long seq);
 extern long      ringbuf_next(ringbuf_t ringbuf);
 extern long      ringbuf_next_n(ringbuf_t ringbuf, int n);
 extern long      ringbuf_try_next(ringbuf_t ringbuf);

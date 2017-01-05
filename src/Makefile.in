@@ -73,8 +73,8 @@ libcdisruptor_la_LIBADD =
 am_libcdisruptor_la_OBJECTS = libcdisruptor_la-mem.lo \
 	libcdisruptor_la-seq.lo libcdisruptor_la-seqgrp.lo \
 	libcdisruptor_la-waitstg.lo libcdisruptor_la-seqbar.lo \
-	libcdisruptor_la-seqr.lo libcdisruptor_la-ringbuf.lo \
-	libcdisruptor_la-util.lo
+	libcdisruptor_la-seqr.lo libcdisruptor_la-event.lo \
+	libcdisruptor_la-ringbuf.lo libcdisruptor_la-util.lo
 libcdisruptor_la_OBJECTS = $(am_libcdisruptor_la_OBJECTS)
 libcdisruptor_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libcdisruptor_la_CFLAGS) \
@@ -209,7 +209,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libcdisruptor.la
 libcdisruptor_la_SOURCES = mem.c seq.c seqgrp.c waitstg.c seqbar.c seqr.c      \
-ringbuf.c util.c
+event.c ringbuf.c util.c
 
 libcdisruptor_la_CPPFLAGS = -I$(top_srcdir)/include
 libcdisruptor_la_CFLAGS = -fPIC -Wall -pthread
@@ -288,6 +288,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-event.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-mem.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-ringbuf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcdisruptor_la-seq.Plo@am__quote@
@@ -359,6 +360,13 @@ libcdisruptor_la-seqr.lo: seqr.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='seqr.c' object='libcdisruptor_la-seqr.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-seqr.lo `test -f 'seqr.c' || echo '$(srcdir)/'`seqr.c
+
+libcdisruptor_la-event.lo: event.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-event.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-event.Tpo -c -o libcdisruptor_la-event.lo `test -f 'event.c' || echo '$(srcdir)/'`event.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcdisruptor_la-event.Tpo $(DEPDIR)/libcdisruptor_la-event.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='event.c' object='libcdisruptor_la-event.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -c -o libcdisruptor_la-event.lo `test -f 'event.c' || echo '$(srcdir)/'`event.c
 
 libcdisruptor_la-ringbuf.lo: ringbuf.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcdisruptor_la_CPPFLAGS) $(CPPFLAGS) $(libcdisruptor_la_CFLAGS) $(CFLAGS) -MT libcdisruptor_la-ringbuf.lo -MD -MP -MF $(DEPDIR)/libcdisruptor_la-ringbuf.Tpo -c -o libcdisruptor_la-ringbuf.lo `test -f 'ringbuf.c' || echo '$(srcdir)/'`ringbuf.c
