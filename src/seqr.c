@@ -93,6 +93,7 @@ seqr_t seqr_new_single(int bufsize, waitstg_t waitstg) {
 /* FIXME */
 seqr_t seqr_new_multi(int bufsize, waitstg_t waitstg) {
 	seqr_t seqr;
+	int i;
 
 	if (unlikely(bufsize < 1))
 		return NULL;
@@ -110,6 +111,8 @@ seqr_t seqr_new_multi(int bufsize, waitstg_t waitstg) {
 	seqr->cursor             = seq_new();
 	seqr->gatingseqs         = seqgrp_new(NULL, 0);
 	seqr->u.m.gatingseqcache = seq_new();
+	for (i = 0; i < bufsize; ++i)
+		seqr->u.m.availbuf[i] = -1;
 	seqr->u.m.idxmask        = bufsize - 1;
 	seqr->u.m.idxshift       = lg2(bufsize);
 	return seqr;
@@ -140,11 +143,13 @@ long seqr_get_cursor(seqr_t seqr) {
 	return seq_get(seqr->cursor);
 }
 
-/* FIXME: add the specified gating sequences to this instance of the disruptor */
+/* FIXME!!!: add the specified gating sequences to this instance of the disruptor */
 void seqr_add_gatingseqs(seqr_t seqr, seq_t *gatingseqs, int length) {
-	NOT_USED(seqr);
-	NOT_USED(gatingseqs);
-	NOT_USED(length);
+	if (unlikely(seqr == NULL))
+		return;
+
+	seqgrp_free(&seqr->gatingseqs);
+	seqr->gatingseqs = seqgrp_new(gatingseqs, length);
 }
 
 /* FIXME: remove the specified sequence from this sequencer */

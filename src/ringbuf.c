@@ -140,7 +140,7 @@ event_t *ringbuf_get(ringbuf_t ringbuf, long seq) {
 
 	if (unlikely(ringbuf == NULL))
 		return NULL;
-	base = (event_t *)((char *)ringbuf->entries + 128);
+	base = (event_t *)((void *)ringbuf->entries + 128);
 	return base + (seq & ringbuf->idxmask);
 }
 

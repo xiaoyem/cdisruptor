@@ -17,35 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "event.h"
+#ifndef EVENTPROC_INCLUDED
+#define EVENTPROC_INCLUDED
 
-/* FIXME */
-inline long event_get_long(event_t *event) {
-	return event->l;
-}
+#include "seq.h"
+#include "seqbar.h"
+#include "ringbuf.h"
 
-/* FIXME */
-inline double event_get_double(event_t *event) {
-	return event->d;
-}
+/* FIXME: exported types */
+typedef struct eventproc_t *eventproc_t;
 
-/* FIXME */
-inline void *event_get_value(event_t *event) {
-	return event->value;
-}
+/* FIXME: exported functions */
+extern eventproc_t eventproc_new(ringbuf_t ringbuf, seqbar_t seqbar);
+extern void        eventproc_free(eventproc_t *epp);
+extern ringbuf_t   eventproc_get_ringbuf(eventproc_t eventproc);
+extern seqbar_t    eventproc_get_seqbar(eventproc_t eventproc);
+extern seq_t       eventproc_get_seq(eventproc_t eventproc);
 
-/* FIXME */
-inline void event_set_long(event_t *event, long l) {
-	event->l = l;
-}
-
-/* FIXME */
-inline void event_set_double(event_t *event, double d) {
-	event->d = d;
-}
-
-/* FIXME */
-inline void event_set_value(event_t *event, void *value) {
-	event->value = value;
-}
+#endif /* EVENTPROC_INCLUDED */
 

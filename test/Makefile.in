@@ -48,12 +48,17 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_one2one_OBJECTS = one2one-one2one.$(OBJEXT)
+am_one2one_OBJECTS = one2one-mem.$(OBJEXT) one2one-seq.$(OBJEXT) \
+	one2one-seqgrp.$(OBJEXT) one2one-waitstg.$(OBJEXT) \
+	one2one-seqbar.$(OBJEXT) one2one-seqr.$(OBJEXT) \
+	one2one-event.$(OBJEXT) one2one-ringbuf.$(OBJEXT) \
+	one2one-util.$(OBJEXT) one2one-eventproc.$(OBJEXT) \
+	one2one-one2one.$(OBJEXT)
 one2one_OBJECTS = $(am_one2one_OBJECTS)
 one2one_LDADD = $(LDADD)
 one2one_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(one2one_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	--mode=link $(CCLD) $(one2one_CFLAGS) $(CFLAGS) \
+	$(one2one_LDFLAGS) $(LDFLAGS) -o $@
 am_three2one_OBJECTS = three2one-three2one.$(OBJEXT)
 three2one_OBJECTS = $(am_three2one_OBJECTS)
 three2one_LDADD = $(LDADD)
@@ -188,9 +193,15 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-one2one_SOURCES = one2one.c
+one2one_SOURCES = $(top_srcdir)/src/mem.c $(top_srcdir)/src/seq.c              \
+$(top_srcdir)/src/seqgrp.c $(top_srcdir)/src/waitstg.c                         \
+$(top_srcdir)/src/seqbar.c $(top_srcdir)/src/seqr.c $(top_srcdir)/src/event.c  \
+$(top_srcdir)/src/ringbuf.c $(top_srcdir)/src/util.c                           \
+$(top_srcdir)/src/eventproc.c one2one.c
+
 one2one_CPPFLAGS = -I$(top_srcdir)/include
-one2one_CFLAGS = -Wall -Winline
+one2one_CFLAGS = -Wall -Winline -pthread
+one2one_LDFLAGS = -lrt -pthread
 three2one_SOURCES = three2one.c
 three2one_CPPFLAGS = -I$(top_srcdir)/include
 three2one_CFLAGS = -Wall -Winline
@@ -250,7 +261,17 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-event.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-eventproc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-mem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-one2one.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-ringbuf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-seq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-seqbar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-seqgrp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-seqr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/one2one-waitstg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/three2one-three2one.Po@am__quote@
 
 .c.o:
@@ -273,6 +294,146 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+one2one-mem.o: $(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-mem.o -MD -MP -MF $(DEPDIR)/one2one-mem.Tpo -c -o one2one-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-mem.Tpo $(DEPDIR)/one2one-mem.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/mem.c' object='one2one-mem.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
+
+one2one-mem.obj: $(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-mem.obj -MD -MP -MF $(DEPDIR)/one2one-mem.Tpo -c -o one2one-mem.obj `if test -f '$(top_srcdir)/src/mem.c'; then $(CYGPATH_W) '$(top_srcdir)/src/mem.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/mem.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-mem.Tpo $(DEPDIR)/one2one-mem.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/mem.c' object='one2one-mem.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-mem.obj `if test -f '$(top_srcdir)/src/mem.c'; then $(CYGPATH_W) '$(top_srcdir)/src/mem.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/mem.c'; fi`
+
+one2one-seq.o: $(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seq.o -MD -MP -MF $(DEPDIR)/one2one-seq.Tpo -c -o one2one-seq.o `test -f '$(top_srcdir)/src/seq.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seq.Tpo $(DEPDIR)/one2one-seq.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seq.c' object='one2one-seq.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seq.o `test -f '$(top_srcdir)/src/seq.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seq.c
+
+one2one-seq.obj: $(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seq.obj -MD -MP -MF $(DEPDIR)/one2one-seq.Tpo -c -o one2one-seq.obj `if test -f '$(top_srcdir)/src/seq.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seq.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seq.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seq.Tpo $(DEPDIR)/one2one-seq.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seq.c' object='one2one-seq.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seq.obj `if test -f '$(top_srcdir)/src/seq.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seq.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seq.c'; fi`
+
+one2one-seqgrp.o: $(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seqgrp.o -MD -MP -MF $(DEPDIR)/one2one-seqgrp.Tpo -c -o one2one-seqgrp.o `test -f '$(top_srcdir)/src/seqgrp.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seqgrp.Tpo $(DEPDIR)/one2one-seqgrp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqgrp.c' object='one2one-seqgrp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seqgrp.o `test -f '$(top_srcdir)/src/seqgrp.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqgrp.c
+
+one2one-seqgrp.obj: $(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seqgrp.obj -MD -MP -MF $(DEPDIR)/one2one-seqgrp.Tpo -c -o one2one-seqgrp.obj `if test -f '$(top_srcdir)/src/seqgrp.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqgrp.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqgrp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seqgrp.Tpo $(DEPDIR)/one2one-seqgrp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqgrp.c' object='one2one-seqgrp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seqgrp.obj `if test -f '$(top_srcdir)/src/seqgrp.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqgrp.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqgrp.c'; fi`
+
+one2one-waitstg.o: $(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-waitstg.o -MD -MP -MF $(DEPDIR)/one2one-waitstg.Tpo -c -o one2one-waitstg.o `test -f '$(top_srcdir)/src/waitstg.c' || echo '$(srcdir)/'`$(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-waitstg.Tpo $(DEPDIR)/one2one-waitstg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/waitstg.c' object='one2one-waitstg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-waitstg.o `test -f '$(top_srcdir)/src/waitstg.c' || echo '$(srcdir)/'`$(top_srcdir)/src/waitstg.c
+
+one2one-waitstg.obj: $(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-waitstg.obj -MD -MP -MF $(DEPDIR)/one2one-waitstg.Tpo -c -o one2one-waitstg.obj `if test -f '$(top_srcdir)/src/waitstg.c'; then $(CYGPATH_W) '$(top_srcdir)/src/waitstg.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/waitstg.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-waitstg.Tpo $(DEPDIR)/one2one-waitstg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/waitstg.c' object='one2one-waitstg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-waitstg.obj `if test -f '$(top_srcdir)/src/waitstg.c'; then $(CYGPATH_W) '$(top_srcdir)/src/waitstg.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/waitstg.c'; fi`
+
+one2one-seqbar.o: $(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seqbar.o -MD -MP -MF $(DEPDIR)/one2one-seqbar.Tpo -c -o one2one-seqbar.o `test -f '$(top_srcdir)/src/seqbar.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seqbar.Tpo $(DEPDIR)/one2one-seqbar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqbar.c' object='one2one-seqbar.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seqbar.o `test -f '$(top_srcdir)/src/seqbar.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqbar.c
+
+one2one-seqbar.obj: $(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seqbar.obj -MD -MP -MF $(DEPDIR)/one2one-seqbar.Tpo -c -o one2one-seqbar.obj `if test -f '$(top_srcdir)/src/seqbar.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqbar.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqbar.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seqbar.Tpo $(DEPDIR)/one2one-seqbar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqbar.c' object='one2one-seqbar.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seqbar.obj `if test -f '$(top_srcdir)/src/seqbar.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqbar.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqbar.c'; fi`
+
+one2one-seqr.o: $(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seqr.o -MD -MP -MF $(DEPDIR)/one2one-seqr.Tpo -c -o one2one-seqr.o `test -f '$(top_srcdir)/src/seqr.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seqr.Tpo $(DEPDIR)/one2one-seqr.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqr.c' object='one2one-seqr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seqr.o `test -f '$(top_srcdir)/src/seqr.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqr.c
+
+one2one-seqr.obj: $(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-seqr.obj -MD -MP -MF $(DEPDIR)/one2one-seqr.Tpo -c -o one2one-seqr.obj `if test -f '$(top_srcdir)/src/seqr.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqr.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqr.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-seqr.Tpo $(DEPDIR)/one2one-seqr.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqr.c' object='one2one-seqr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-seqr.obj `if test -f '$(top_srcdir)/src/seqr.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqr.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqr.c'; fi`
+
+one2one-event.o: $(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-event.o -MD -MP -MF $(DEPDIR)/one2one-event.Tpo -c -o one2one-event.o `test -f '$(top_srcdir)/src/event.c' || echo '$(srcdir)/'`$(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-event.Tpo $(DEPDIR)/one2one-event.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/event.c' object='one2one-event.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-event.o `test -f '$(top_srcdir)/src/event.c' || echo '$(srcdir)/'`$(top_srcdir)/src/event.c
+
+one2one-event.obj: $(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-event.obj -MD -MP -MF $(DEPDIR)/one2one-event.Tpo -c -o one2one-event.obj `if test -f '$(top_srcdir)/src/event.c'; then $(CYGPATH_W) '$(top_srcdir)/src/event.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/event.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-event.Tpo $(DEPDIR)/one2one-event.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/event.c' object='one2one-event.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-event.obj `if test -f '$(top_srcdir)/src/event.c'; then $(CYGPATH_W) '$(top_srcdir)/src/event.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/event.c'; fi`
+
+one2one-ringbuf.o: $(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-ringbuf.o -MD -MP -MF $(DEPDIR)/one2one-ringbuf.Tpo -c -o one2one-ringbuf.o `test -f '$(top_srcdir)/src/ringbuf.c' || echo '$(srcdir)/'`$(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-ringbuf.Tpo $(DEPDIR)/one2one-ringbuf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/ringbuf.c' object='one2one-ringbuf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-ringbuf.o `test -f '$(top_srcdir)/src/ringbuf.c' || echo '$(srcdir)/'`$(top_srcdir)/src/ringbuf.c
+
+one2one-ringbuf.obj: $(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-ringbuf.obj -MD -MP -MF $(DEPDIR)/one2one-ringbuf.Tpo -c -o one2one-ringbuf.obj `if test -f '$(top_srcdir)/src/ringbuf.c'; then $(CYGPATH_W) '$(top_srcdir)/src/ringbuf.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/ringbuf.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-ringbuf.Tpo $(DEPDIR)/one2one-ringbuf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/ringbuf.c' object='one2one-ringbuf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-ringbuf.obj `if test -f '$(top_srcdir)/src/ringbuf.c'; then $(CYGPATH_W) '$(top_srcdir)/src/ringbuf.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/ringbuf.c'; fi`
+
+one2one-util.o: $(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-util.o -MD -MP -MF $(DEPDIR)/one2one-util.Tpo -c -o one2one-util.o `test -f '$(top_srcdir)/src/util.c' || echo '$(srcdir)/'`$(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-util.Tpo $(DEPDIR)/one2one-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/util.c' object='one2one-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-util.o `test -f '$(top_srcdir)/src/util.c' || echo '$(srcdir)/'`$(top_srcdir)/src/util.c
+
+one2one-util.obj: $(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-util.obj -MD -MP -MF $(DEPDIR)/one2one-util.Tpo -c -o one2one-util.obj `if test -f '$(top_srcdir)/src/util.c'; then $(CYGPATH_W) '$(top_srcdir)/src/util.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/util.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-util.Tpo $(DEPDIR)/one2one-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/util.c' object='one2one-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-util.obj `if test -f '$(top_srcdir)/src/util.c'; then $(CYGPATH_W) '$(top_srcdir)/src/util.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/util.c'; fi`
+
+one2one-eventproc.o: $(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-eventproc.o -MD -MP -MF $(DEPDIR)/one2one-eventproc.Tpo -c -o one2one-eventproc.o `test -f '$(top_srcdir)/src/eventproc.c' || echo '$(srcdir)/'`$(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-eventproc.Tpo $(DEPDIR)/one2one-eventproc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/eventproc.c' object='one2one-eventproc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-eventproc.o `test -f '$(top_srcdir)/src/eventproc.c' || echo '$(srcdir)/'`$(top_srcdir)/src/eventproc.c
+
+one2one-eventproc.obj: $(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-eventproc.obj -MD -MP -MF $(DEPDIR)/one2one-eventproc.Tpo -c -o one2one-eventproc.obj `if test -f '$(top_srcdir)/src/eventproc.c'; then $(CYGPATH_W) '$(top_srcdir)/src/eventproc.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/eventproc.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/one2one-eventproc.Tpo $(DEPDIR)/one2one-eventproc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/eventproc.c' object='one2one-eventproc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -c -o one2one-eventproc.obj `if test -f '$(top_srcdir)/src/eventproc.c'; then $(CYGPATH_W) '$(top_srcdir)/src/eventproc.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/eventproc.c'; fi`
 
 one2one-one2one.o: one2one.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(one2one_CPPFLAGS) $(CPPFLAGS) $(one2one_CFLAGS) $(CFLAGS) -MT one2one-one2one.o -MD -MP -MF $(DEPDIR)/one2one-one2one.Tpo -c -o one2one-one2one.o `test -f 'one2one.c' || echo '$(srcdir)/'`one2one.c

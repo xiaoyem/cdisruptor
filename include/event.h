@@ -23,14 +23,17 @@
 /* FIXME: exported types */
 typedef union event_t {
 	long	l;
+	double	d;
 	void	*value;
 } event_t;
 
 /* FIXME: exported functions */
-extern long  event_get_long(event_t *event);
-extern void *event_get_value(event_t *event);
-extern void  event_set_long(event_t *event, long l);
-extern void  event_set_value(event_t *event, void *value);
+extern long   event_get_long(event_t *event);
+extern double event_get_double(event_t *event);
+extern void  *event_get_value(event_t *event);
+extern void   event_set_long(event_t *event, long l);
+extern void   event_set_double(event_t *event, double d);
+extern void   event_set_value(event_t *event, void *value);
 
 #endif /* EVENT_INCLUDED */
 

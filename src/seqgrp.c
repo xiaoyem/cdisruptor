@@ -26,11 +26,17 @@
 /* FIXME */
 seqgrp_t seqgrp_new(seq_t *seqs, int length) {
 	seqgrp_t seqgrp;
+	int i;
 
 	if (unlikely(NEW(seqgrp) == NULL))
 		return NULL;
+	if ((seqgrp->seqs = ALLOC(length * sizeof (seq_t))) == NULL) {
+		FREE(seqgrp);
+		return NULL;
+	}
 	seqgrp->length = length;
-	seqgrp->seqs   = seqs;
+	for (i = 0; i < seqgrp->length; ++i)
+		seqgrp->seqs[i] = seqs[i];
 	return seqgrp;
 }
 
@@ -38,17 +44,18 @@ seqgrp_t seqgrp_new(seq_t *seqs, int length) {
 void seqgrp_free(seqgrp_t *sgp) {
 	if (unlikely(sgp == NULL || *sgp == NULL))
 		return;
+	FREE((*sgp)->seqs);
 	FREE(*sgp);
 }
 
-/* FIXME */
+/* get the size of the group */
 int seqgrp_size(seqgrp_t seqgrp) {
 	if (unlikely(seqgrp == NULL))
 		return 0;
 	return seqgrp->length;
 }
 
-/* FIXME */
+/* get the minimum sequence value for the group */
 long seqgrp_get(seqgrp_t seqgrp) {
 	if (unlikely(seqgrp == NULL))
 		return LONG_MAX;
@@ -57,12 +64,8 @@ long seqgrp_get(seqgrp_t seqgrp) {
 
 /* FIXME */
 void seqgrp_set(seqgrp_t seqgrp, long val) {
-	int i, size;
-
-	if (unlikely(seqgrp == NULL))
-		return;
-	for (i = 0, size = seqgrp->length; i < size; ++i)
-		seq_set(seqgrp->seqs[i], val);
+	NOT_USED(seqgrp);
+	NOT_USED(val);
 }
 
 /* FIXME */
