@@ -23,7 +23,7 @@
 #include "seq.h"
 
 /* FIXME: exported functions */
-extern long get_min_seq(seq_t *seqs, int len, long min);
+extern long get_min_seq(seq_t *seqs, size_t length, long min);
 extern int  lg2(int i);
 
 #endif /* UTIL_INCLUDED */

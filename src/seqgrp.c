@@ -24,18 +24,18 @@
 #include "seqgrp.h"
 
 /* FIXME */
-seqgrp_t seqgrp_new(seq_t *seqs, int length) {
+seqgrp_t seqgrp_new(seq_t *seqs, size_t length) {
 	seqgrp_t seqgrp;
-	int i;
+	size_t i;
 
-	if (unlikely(NEW(seqgrp) == NULL))
+	if (unlikely(NEW0(seqgrp) == NULL))
 		return NULL;
-	if ((seqgrp->seqs = ALLOC(length * sizeof (seq_t))) == NULL) {
+	seqgrp->length = length;
+	if (length > 0 && (seqgrp->seqs = ALLOC(length * sizeof (seq_t))) == NULL) {
 		FREE(seqgrp);
 		return NULL;
 	}
-	seqgrp->length = length;
-	for (i = 0; i < seqgrp->length; ++i)
+	for (i = 0; i < length; ++i)
 		seqgrp->seqs[i] = seqs[i];
 	return seqgrp;
 }
@@ -68,13 +68,20 @@ void seqgrp_set(seqgrp_t seqgrp, long val) {
 	NOT_USED(val);
 }
 
-/* FIXME */
-void seqgrp_add(seqgrp_t seqgrp, seq_t seq) {
-	NOT_USED(seqgrp);
-	NOT_USED(seq);
+/* FIXME!!! */
+void seqgrp_add(seqgrp_t seqgrp, seq_t* seqs, size_t length) {
+	size_t i;
+
+	if (unlikely(seqgrp == NULL))
+		return;
+	if (length > 0 && RESIZE(seqgrp->seqs, (seqgrp->length + length) * sizeof (seq_t)) == NULL)
+		return;
+	for (i = 0; i < length; ++i)
+		seqgrp->seqs[seqgrp->length + i] = seqs[i];
+	seqgrp->length += length;
 }
 
-/* FIXME */
+/* FIXME!!! */
 bool seqgrp_remove(seqgrp_t seqgrp, seq_t seq) {
 	NOT_USED(seqgrp);
 	NOT_USED(seq);

@@ -31,7 +31,7 @@ typedef struct seqbar_t *seqbar_t;
 typedef struct seqr_t *seqr_t;
 
 /* FIXME: exported functions */
-extern seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursor, seq_t* depseqs, int length);
+extern seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursor, seq_t* depseqs, size_t length);
 extern void     seqbar_free(seqbar_t *sbp);
 extern long     seqbar_wait_for(seqbar_t seqbar, long seq);
 extern long     seqbar_get_cursor(seqbar_t seqbar);

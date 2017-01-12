@@ -93,7 +93,7 @@ long ringbuf_get_cursor(ringbuf_t ringbuf) {
 }
 
 /* add the specified gating sequences to this instance of the disruptor */
-void ringbuf_add_gatingseqs(ringbuf_t ringbuf, seq_t *gatingseqs, int length) {
+void ringbuf_add_gatingseqs(ringbuf_t ringbuf, seq_t *gatingseqs, size_t length) {
 	if (unlikely(ringbuf == NULL))
 		return;
 	seqr_add_gatingseqs(ringbuf->seqr, gatingseqs, length);
@@ -113,14 +113,15 @@ long ringbuf_get_min_gatingseq(ringbuf_t ringbuf) {
 	return seqr_get_min_seq(ringbuf->seqr);
 }
 
-/* FIXME */
-seqbar_t ringbuf_new_bar(ringbuf_t ringbuf, seq_t *seqs, int length) {
+/* create a new sequence barrier to be used by an event processor to track which messages
+ * are available to be read from the ring buffer given a list of sequences to track */
+seqbar_t ringbuf_new_bar(ringbuf_t ringbuf, seq_t *seqs, size_t length) {
 	if (unlikely(ringbuf == NULL))
 		return NULL;
 	return seqr_new_bar(ringbuf->seqr, seqs, length);
 }
 
-/* FIXME */
+/* given specified required capacity determines if that amount of space is available */
 bool ringbuf_has_avail_cap(ringbuf_t ringbuf, int requiredcap) {
 	if (unlikely(ringbuf == NULL))
 		return false;

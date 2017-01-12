@@ -143,16 +143,14 @@ long seqr_get_cursor(seqr_t seqr) {
 	return seq_get(seqr->cursor);
 }
 
-/* FIXME!!!: add the specified gating sequences to this instance of the disruptor */
-void seqr_add_gatingseqs(seqr_t seqr, seq_t *gatingseqs, int length) {
+/* FIXME!!! */
+void seqr_add_gatingseqs(seqr_t seqr, seq_t *gatingseqs, size_t length) {
 	if (unlikely(seqr == NULL))
 		return;
-
-	seqgrp_free(&seqr->gatingseqs);
-	seqr->gatingseqs = seqgrp_new(gatingseqs, length);
+	seqgrp_add(seqr->gatingseqs, gatingseqs, length);
 }
 
-/* FIXME: remove the specified sequence from this sequencer */
+/* FIXME!!! */
 void seqr_remove_gatingseq(seqr_t seqr, seq_t gatingseq) {
 	NOT_USED(seqr);
 	NOT_USED(gatingseq);
@@ -165,8 +163,9 @@ long seqr_get_min_seq(seqr_t seqr) {
 	return get_min_seq(seqr->gatingseqs->seqs, seqr->gatingseqs->length, seq_get(seqr->cursor));
 }
 
-/* FIXME */
-seqbar_t seqr_new_bar(seqr_t seqr, seq_t *seqs, int length) {
+/* create a new sequence barrier to be used by an event processor to track which messages
+ * are available to be read from the ring buffer given a list of sequences to track */
+seqbar_t seqr_new_bar(seqr_t seqr, seq_t *seqs, size_t length) {
 	if (unlikely(seqr == NULL))
 		return NULL;
 	return seqbar_new(seqr, seqr->waitstg, seqr->cursor, seqs, length);

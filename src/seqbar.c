@@ -32,7 +32,7 @@ struct seqbar_t {
 };
 
 /* FIXME */
-seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursor, seq_t* depseqs, int length) {
+seqbar_t seqbar_new(seqr_t seqr, waitstg_t waitstg, seq_t cursor, seq_t* depseqs, size_t length) {
 	seqbar_t seqbar;
 
 	if (unlikely(NEW(seqbar) == NULL))
@@ -84,7 +84,7 @@ bool seqbar_is_alerted(seqbar_t seqbar) {
 	return __atomic_load_n(alerted_, __ATOMIC_ACQUIRE);
 }
 
-/* FIXME */
+/* alert the event processors of a status change and stay in this status until cleared */
 void seqbar_alert(seqbar_t seqbar) {
 	bool *alerted_;
 

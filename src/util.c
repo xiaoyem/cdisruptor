@@ -20,8 +20,8 @@
 #include "macros.h"
 #include "util.h"
 
-long get_min_seq(seq_t *seqs, int length, long min) {
-	int i;
+long get_min_seq(seq_t *seqs, size_t length, long min) {
+	size_t i;
 
 	for (i = 0; i < length; ++i)
 		min = MIN(min, seq_get(seqs[i]));

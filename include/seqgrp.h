@@ -25,17 +25,17 @@
 
 /* FIXME: exported types */
 typedef struct seqgrp_t {
-	int	length;
+	size_t	length;
 	seq_t	*seqs;
 } *seqgrp_t;
 
 /* FIXME: exported functions */
-extern seqgrp_t seqgrp_new(seq_t *seqs, int length);
+extern seqgrp_t seqgrp_new(seq_t *seqs, size_t length);
 extern void     seqgrp_free(seqgrp_t *sgp);
 extern int      seqgrp_size(seqgrp_t seqgrp);
 extern long     seqgrp_get(seqgrp_t seqgrp);
 extern void     seqgrp_set(seqgrp_t seqgrp, long val);
-extern void     seqgrp_add(seqgrp_t seqgrp, seq_t seq);
+extern void     seqgrp_add(seqgrp_t seqgrp, seq_t* seq, size_t length);
 extern bool     seqgrp_remove(seqgrp_t seqgrp, seq_t seq);
 
 #endif /* SEQGRP_INCLUDED */
