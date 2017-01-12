@@ -19,6 +19,8 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "seq.h"
 #include "waitstg.h"
 #include "seqbar.h"
@@ -27,7 +29,7 @@
 #include "eventproc.h"
 
 /* FIXME */
-static long iterations = 1000L;
+static long iterations = 1000L * 1000L * 1000L;
 
 /* FIXME */
 static void *ep_thread(void *data) {
@@ -44,7 +46,7 @@ static void *ep_thread(void *data) {
 			ringbuf_t ringbuf = eventproc_get_ringbuf(eventproc);
 			event_t *event = ringbuf_get(ringbuf, next_seq);
 
-			printf("%ld\n", event_get_long(event));
+			//fprintf(stdout, "%ld\n", event_get_long(event));
 			++next_seq;
 		}
 		seq_set(seq, avail_seq);
@@ -60,12 +62,16 @@ int main(int argc, char **argv) {
 	eventproc_t eventproc = eventproc_new(ringbuf, seqbar);
 	seq_t seq = eventproc_get_seq(eventproc);
 	pthread_t thread;
-	long i;
+	struct timespec start, end;
+	long i, diff;
 
 	ringbuf_add_gatingseqs(ringbuf, &seq, 1);
-	/* FIXME */
-	pthread_create(&thread, NULL, ep_thread, eventproc);
-	for (i = 0; i < 1000L; ++i) {
+	if (pthread_create(&thread, NULL, ep_thread, eventproc) != 0) {
+		fprintf(stderr, "Error initializing event processor\n");
+		exit(1);
+	}
+	clock_gettime(CLOCK_REALTIME, &start);
+	for (i = 0; i < iterations; ++i) {
 		long next = ringbuf_next(ringbuf);
 		event_t *event = ringbuf_get(ringbuf, next);
 
@@ -73,6 +79,9 @@ int main(int argc, char **argv) {
 		ringbuf_publish(ringbuf, next);
 	}
 	pthread_join(thread, NULL);
+	clock_gettime(CLOCK_REALTIME, &end);
+	diff = end.tv_sec * 1000000000 + end.tv_nsec - start.tv_sec * 1000000000 - start.tv_nsec;
+	fprintf(stdout, "%ld ops/sec\n", iterations * 1000000000 / diff);
 	return 0;
 }
 
