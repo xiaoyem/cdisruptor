@@ -29,7 +29,7 @@
 #include "eventproc.h"
 
 /* FIXME */
-static long iterations = 1000L * 1000L * 1000L;
+static long iterations = 1000L * 1000L * 100L;
 static int batch_size = 10;
 static long value = 0L;
 
@@ -48,7 +48,7 @@ static void *ep_thread(void *data) {
 		while (next_seq <= avail_seq) {
 			event_t *event = ringbuf_get(ringbuf, next_seq);
 
-			//fprintf(stdout, "%ld\n", event_get_long(event));
+			/* fprintf(stdout, "%ld\n", event_get_long(event)); */
 			value += event_get_long(event);
 			if (expcount == next_seq)
 				goto end;
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 	pthread_join(thread, NULL);
 	clock_gettime(CLOCK_REALTIME, &end);
 	diff = end.tv_sec * 1000000000 + end.tv_nsec - start.tv_sec * 1000000000 - start.tv_nsec;
-	fprintf(stdout, "%ld ops/sec\n", iterations * 1000000000 / diff);
+	fprintf(stdout, "%ld ops/sec\n", iterations * batch_size * 1000000000 / diff);
 	return 0;
 }
 

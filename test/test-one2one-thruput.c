@@ -47,7 +47,7 @@ static void *ep_thread(void *data) {
 		while (next_seq <= avail_seq) {
 			event_t *event = ringbuf_get(ringbuf, next_seq);
 
-			//fprintf(stdout, "%ld\n", event_get_long(event));
+			/* fprintf(stdout, "%ld\n", event_get_long(event)); */
 			value += event_get_long(event);
 			if (expcount == next_seq)
 				goto end;
