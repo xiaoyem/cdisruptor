@@ -30,29 +30,34 @@
 
 /* FIXME */
 static long iterations = 1000L * 1000L * 1000L;
+static int batch_size = 10;
+static long value = 0L;
 
 /* FIXME */
 static void *ep_thread(void *data) {
 	eventproc_t eventproc = (eventproc_t)data;
-	seqbar_t seqbar = eventproc_get_seqbar(eventproc);
-	seq_t seq = eventproc_get_seq(eventproc);
+	ringbuf_t ringbuf = eventproc_get_ringbuf(eventproc);
+	seqbar_t  seqbar  = eventproc_get_seqbar(eventproc);
+	seq_t     seq     = eventproc_get_seq(eventproc);
 	long next_seq = seq_get(seq) + 1L;
-	long expcount = seq_get(seq) + iterations;
+	long expcount = seq_get(seq) + iterations * batch_size;
 
 	while (1) {
 		long avail_seq = seqbar_wait_for(seqbar, next_seq);
 
 		while (next_seq <= avail_seq) {
-			ringbuf_t ringbuf = eventproc_get_ringbuf(eventproc);
 			event_t *event = ringbuf_get(ringbuf, next_seq);
 
 			//fprintf(stdout, "%ld\n", event_get_long(event));
+			value += event_get_long(event);
+			if (expcount == next_seq)
+				goto end;
 			++next_seq;
 		}
 		seq_set(seq, avail_seq);
-		if (seq_get(seq) == expcount)
-			break;
 	}
+
+end:
 	return NULL;
 }
 
@@ -72,11 +77,16 @@ int main(int argc, char **argv) {
 	}
 	clock_gettime(CLOCK_REALTIME, &start);
 	for (i = 0; i < iterations; ++i) {
-		long next = ringbuf_next(ringbuf);
-		event_t *event = ringbuf_get(ringbuf, next);
+		long hi = ringbuf_next_n(ringbuf, batch_size);
+		long lo = hi - batch_size + 1;
+		long j;
 
-		event_set_long(event, i);
-		ringbuf_publish(ringbuf, next);
+		for (j = lo; j <= hi; ++j) {
+			event_t *event = ringbuf_get(ringbuf, j);
+
+			event_set_long(event, i);
+		}
+		ringbuf_publish_batch(ringbuf, lo, hi);
 	}
 	pthread_join(thread, NULL);
 	clock_gettime(CLOCK_REALTIME, &end);
