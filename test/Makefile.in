@@ -35,7 +35,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = test-one2one-thruput$(EXEEXT) \
-	test-one2one-batch-thruput$(EXEEXT) three2one$(EXEEXT)
+	test-one2one-batch-thruput$(EXEEXT) \
+	test-three2one-thruput$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -85,12 +86,14 @@ test_one2one_thruput_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(test_one2one_thruput_CFLAGS) $(CFLAGS) \
 	$(test_one2one_thruput_LDFLAGS) $(LDFLAGS) -o $@
-am_three2one_OBJECTS = three2one-three2one.$(OBJEXT)
-three2one_OBJECTS = $(am_three2one_OBJECTS)
-three2one_LDADD = $(LDADD)
-three2one_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(three2one_CFLAGS) \
-	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_test_three2one_thruput_OBJECTS =  \
+	test_three2one_thruput-test-three2one-thruput.$(OBJEXT)
+test_three2one_thruput_OBJECTS = $(am_test_three2one_thruput_OBJECTS)
+test_three2one_thruput_LDADD = $(LDADD)
+test_three2one_thruput_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(test_three2one_thruput_CFLAGS) $(CFLAGS) \
+	$(test_three2one_thruput_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -105,9 +108,11 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(test_one2one_batch_thruput_SOURCES) \
-	$(test_one2one_thruput_SOURCES) $(three2one_SOURCES)
+	$(test_one2one_thruput_SOURCES) \
+	$(test_three2one_thruput_SOURCES)
 DIST_SOURCES = $(test_one2one_batch_thruput_SOURCES) \
-	$(test_one2one_thruput_SOURCES) $(three2one_SOURCES)
+	$(test_one2one_thruput_SOURCES) \
+	$(test_three2one_thruput_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -239,9 +244,10 @@ $(top_srcdir)/src/eventproc.c test-one2one-batch-thruput.c
 test_one2one_batch_thruput_CPPFLAGS = -I$(top_srcdir)/include
 test_one2one_batch_thruput_CFLAGS = -Wall -Winline -pthread
 test_one2one_batch_thruput_LDFLAGS = -lrt -pthread
-three2one_SOURCES = three2one.c
-three2one_CPPFLAGS = -I$(top_srcdir)/include
-three2one_CFLAGS = -Wall -Winline
+test_three2one_thruput_SOURCES = test-three2one-thruput.c
+test_three2one_thruput_CPPFLAGS = -I$(top_srcdir)/include
+test_three2one_thruput_CFLAGS = -Wall -Winline -pthread
+test_three2one_thruput_LDFLAGS = -lrt -pthread
 all: all-am
 
 .SUFFIXES:
@@ -291,9 +297,9 @@ test-one2one-batch-thruput$(EXEEXT): $(test_one2one_batch_thruput_OBJECTS) $(tes
 test-one2one-thruput$(EXEEXT): $(test_one2one_thruput_OBJECTS) $(test_one2one_thruput_DEPENDENCIES) 
 	@rm -f test-one2one-thruput$(EXEEXT)
 	$(test_one2one_thruput_LINK) $(test_one2one_thruput_OBJECTS) $(test_one2one_thruput_LDADD) $(LIBS)
-three2one$(EXEEXT): $(three2one_OBJECTS) $(three2one_DEPENDENCIES) 
-	@rm -f three2one$(EXEEXT)
-	$(three2one_LINK) $(three2one_OBJECTS) $(three2one_LDADD) $(LIBS)
+test-three2one-thruput$(EXEEXT): $(test_three2one_thruput_OBJECTS) $(test_three2one_thruput_DEPENDENCIES) 
+	@rm -f test-three2one-thruput$(EXEEXT)
+	$(test_three2one_thruput_LINK) $(test_three2one_thruput_OBJECTS) $(test_three2one_thruput_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -323,7 +329,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_one2one_thruput-test-one2one-thruput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_one2one_thruput-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_one2one_thruput-waitstg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/three2one-three2one.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -654,19 +660,19 @@ test_one2one_thruput-test-one2one-thruput.obj: test-one2one-thruput.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_one2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_one2one_thruput_CFLAGS) $(CFLAGS) -c -o test_one2one_thruput-test-one2one-thruput.obj `if test -f 'test-one2one-thruput.c'; then $(CYGPATH_W) 'test-one2one-thruput.c'; else $(CYGPATH_W) '$(srcdir)/test-one2one-thruput.c'; fi`
 
-three2one-three2one.o: three2one.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -MT three2one-three2one.o -MD -MP -MF $(DEPDIR)/three2one-three2one.Tpo -c -o three2one-three2one.o `test -f 'three2one.c' || echo '$(srcdir)/'`three2one.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/three2one-three2one.Tpo $(DEPDIR)/three2one-three2one.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='three2one.c' object='three2one-three2one.o' libtool=no @AMDEPBACKSLASH@
+test_three2one_thruput-test-three2one-thruput.o: test-three2one-thruput.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_thruput-test-three2one-thruput.o -MD -MP -MF $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Tpo -c -o test_three2one_thruput-test-three2one-thruput.o `test -f 'test-three2one-thruput.c' || echo '$(srcdir)/'`test-three2one-thruput.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Tpo $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-three2one-thruput.c' object='test_three2one_thruput-test-three2one-thruput.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -c -o three2one-three2one.o `test -f 'three2one.c' || echo '$(srcdir)/'`three2one.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_thruput-test-three2one-thruput.o `test -f 'test-three2one-thruput.c' || echo '$(srcdir)/'`test-three2one-thruput.c
 
-three2one-three2one.obj: three2one.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -MT three2one-three2one.obj -MD -MP -MF $(DEPDIR)/three2one-three2one.Tpo -c -o three2one-three2one.obj `if test -f 'three2one.c'; then $(CYGPATH_W) 'three2one.c'; else $(CYGPATH_W) '$(srcdir)/three2one.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/three2one-three2one.Tpo $(DEPDIR)/three2one-three2one.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='three2one.c' object='three2one-three2one.obj' libtool=no @AMDEPBACKSLASH@
+test_three2one_thruput-test-three2one-thruput.obj: test-three2one-thruput.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_thruput-test-three2one-thruput.obj -MD -MP -MF $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Tpo -c -o test_three2one_thruput-test-three2one-thruput.obj `if test -f 'test-three2one-thruput.c'; then $(CYGPATH_W) 'test-three2one-thruput.c'; else $(CYGPATH_W) '$(srcdir)/test-three2one-thruput.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Tpo $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-three2one-thruput.c' object='test_three2one_thruput-test-three2one-thruput.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(three2one_CPPFLAGS) $(CPPFLAGS) $(three2one_CFLAGS) $(CFLAGS) -c -o three2one-three2one.obj `if test -f 'three2one.c'; then $(CYGPATH_W) 'three2one.c'; else $(CYGPATH_W) '$(srcdir)/three2one.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_thruput-test-three2one-thruput.obj `if test -f 'test-three2one-thruput.c'; then $(CYGPATH_W) 'test-three2one-thruput.c'; else $(CYGPATH_W) '$(srcdir)/test-three2one-thruput.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

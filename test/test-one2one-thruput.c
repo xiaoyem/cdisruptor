@@ -49,7 +49,7 @@ static void *ep_thread(void *data) {
 
 			/* fprintf(stdout, "%ld\n", event_get_long(event)); */
 			value += event_get_long(event);
-			if (expcount == next_seq)
+			if (next_seq == expcount)
 				goto end;
 			++next_seq;
 		}
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Error initializing event processor\n");
 		exit(1);
 	}
-	clock_gettime(CLOCK_REALTIME, &start);
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	for (i = 0; i < iterations; ++i) {
 		long next = ringbuf_next(ringbuf);
 		event_t *event = ringbuf_get(ringbuf, next);
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 		ringbuf_publish(ringbuf, next);
 	}
 	pthread_join(thread, NULL);
-	clock_gettime(CLOCK_REALTIME, &end);
+	clock_gettime(CLOCK_MONOTONIC, &end);
 	diff = end.tv_sec * 1000000000 + end.tv_nsec - start.tv_sec * 1000000000 - start.tv_nsec;
 	fprintf(stdout, "%ld ops/sec\n", iterations * 1000000000 / diff);
 	return 0;
