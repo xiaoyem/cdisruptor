@@ -36,7 +36,7 @@ build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = test-one2one-thruput$(EXEEXT) \
 	test-one2one-batch-thruput$(EXEEXT) \
-	test-three2one-thruput$(EXEEXT)
+	test-pingpong-latency$(EXEEXT) test-three2one-thruput$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -86,6 +86,24 @@ test_one2one_thruput_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(test_one2one_thruput_CFLAGS) $(CFLAGS) \
 	$(test_one2one_thruput_LDFLAGS) $(LDFLAGS) -o $@
+am_test_pingpong_latency_OBJECTS =  \
+	test_pingpong_latency-mem.$(OBJEXT) \
+	test_pingpong_latency-seq.$(OBJEXT) \
+	test_pingpong_latency-seqgrp.$(OBJEXT) \
+	test_pingpong_latency-waitstg.$(OBJEXT) \
+	test_pingpong_latency-seqbar.$(OBJEXT) \
+	test_pingpong_latency-seqr.$(OBJEXT) \
+	test_pingpong_latency-event.$(OBJEXT) \
+	test_pingpong_latency-ringbuf.$(OBJEXT) \
+	test_pingpong_latency-util.$(OBJEXT) \
+	test_pingpong_latency-eventproc.$(OBJEXT) \
+	test_pingpong_latency-test-pingpong-latency.$(OBJEXT)
+test_pingpong_latency_OBJECTS = $(am_test_pingpong_latency_OBJECTS)
+test_pingpong_latency_LDADD = $(LDADD)
+test_pingpong_latency_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(test_pingpong_latency_CFLAGS) $(CFLAGS) \
+	$(test_pingpong_latency_LDFLAGS) $(LDFLAGS) -o $@
 am_test_three2one_thruput_OBJECTS =  \
 	test_three2one_thruput-test-three2one-thruput.$(OBJEXT)
 test_three2one_thruput_OBJECTS = $(am_test_three2one_thruput_OBJECTS)
@@ -109,9 +127,11 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(test_one2one_batch_thruput_SOURCES) \
 	$(test_one2one_thruput_SOURCES) \
+	$(test_pingpong_latency_SOURCES) \
 	$(test_three2one_thruput_SOURCES)
 DIST_SOURCES = $(test_one2one_batch_thruput_SOURCES) \
 	$(test_one2one_thruput_SOURCES) \
+	$(test_pingpong_latency_SOURCES) \
 	$(test_three2one_thruput_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -244,6 +264,15 @@ $(top_srcdir)/src/eventproc.c test-one2one-batch-thruput.c
 test_one2one_batch_thruput_CPPFLAGS = -I$(top_srcdir)/include
 test_one2one_batch_thruput_CFLAGS = -Wall -Winline -pthread
 test_one2one_batch_thruput_LDFLAGS = -lrt -pthread
+test_pingpong_latency_SOURCES = $(top_srcdir)/src/mem.c $(top_srcdir)/src/seq.c\
+$(top_srcdir)/src/seqgrp.c $(top_srcdir)/src/waitstg.c                         \
+$(top_srcdir)/src/seqbar.c $(top_srcdir)/src/seqr.c $(top_srcdir)/src/event.c  \
+$(top_srcdir)/src/ringbuf.c $(top_srcdir)/src/util.c                           \
+$(top_srcdir)/src/eventproc.c test-pingpong-latency.c
+
+test_pingpong_latency_CPPFLAGS = -I$(top_srcdir)/include
+test_pingpong_latency_CFLAGS = -Wall -Winline -pthread
+test_pingpong_latency_LDFLAGS = -lrt -pthread
 test_three2one_thruput_SOURCES = test-three2one-thruput.c
 test_three2one_thruput_CPPFLAGS = -I$(top_srcdir)/include
 test_three2one_thruput_CFLAGS = -Wall -Winline -pthread
@@ -297,6 +326,9 @@ test-one2one-batch-thruput$(EXEEXT): $(test_one2one_batch_thruput_OBJECTS) $(tes
 test-one2one-thruput$(EXEEXT): $(test_one2one_thruput_OBJECTS) $(test_one2one_thruput_DEPENDENCIES) 
 	@rm -f test-one2one-thruput$(EXEEXT)
 	$(test_one2one_thruput_LINK) $(test_one2one_thruput_OBJECTS) $(test_one2one_thruput_LDADD) $(LIBS)
+test-pingpong-latency$(EXEEXT): $(test_pingpong_latency_OBJECTS) $(test_pingpong_latency_DEPENDENCIES) 
+	@rm -f test-pingpong-latency$(EXEEXT)
+	$(test_pingpong_latency_LINK) $(test_pingpong_latency_OBJECTS) $(test_pingpong_latency_LDADD) $(LIBS)
 test-three2one-thruput$(EXEEXT): $(test_three2one_thruput_OBJECTS) $(test_three2one_thruput_DEPENDENCIES) 
 	@rm -f test-three2one-thruput$(EXEEXT)
 	$(test_three2one_thruput_LINK) $(test_three2one_thruput_OBJECTS) $(test_three2one_thruput_LDADD) $(LIBS)
@@ -329,6 +361,17 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_one2one_thruput-test-one2one-thruput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_one2one_thruput-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_one2one_thruput-waitstg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-event.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-eventproc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-mem.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-ringbuf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-seq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-seqbar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-seqgrp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-seqr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-waitstg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Po@am__quote@
 
 .c.o:
@@ -659,6 +702,160 @@ test_one2one_thruput-test-one2one-thruput.obj: test-one2one-thruput.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-one2one-thruput.c' object='test_one2one_thruput-test-one2one-thruput.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_one2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_one2one_thruput_CFLAGS) $(CFLAGS) -c -o test_one2one_thruput-test-one2one-thruput.obj `if test -f 'test-one2one-thruput.c'; then $(CYGPATH_W) 'test-one2one-thruput.c'; else $(CYGPATH_W) '$(srcdir)/test-one2one-thruput.c'; fi`
+
+test_pingpong_latency-mem.o: $(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-mem.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-mem.Tpo -c -o test_pingpong_latency-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-mem.Tpo $(DEPDIR)/test_pingpong_latency-mem.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/mem.c' object='test_pingpong_latency-mem.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
+
+test_pingpong_latency-mem.obj: $(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-mem.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-mem.Tpo -c -o test_pingpong_latency-mem.obj `if test -f '$(top_srcdir)/src/mem.c'; then $(CYGPATH_W) '$(top_srcdir)/src/mem.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/mem.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-mem.Tpo $(DEPDIR)/test_pingpong_latency-mem.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/mem.c' object='test_pingpong_latency-mem.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-mem.obj `if test -f '$(top_srcdir)/src/mem.c'; then $(CYGPATH_W) '$(top_srcdir)/src/mem.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/mem.c'; fi`
+
+test_pingpong_latency-seq.o: $(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seq.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seq.Tpo -c -o test_pingpong_latency-seq.o `test -f '$(top_srcdir)/src/seq.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seq.Tpo $(DEPDIR)/test_pingpong_latency-seq.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seq.c' object='test_pingpong_latency-seq.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seq.o `test -f '$(top_srcdir)/src/seq.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seq.c
+
+test_pingpong_latency-seq.obj: $(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seq.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seq.Tpo -c -o test_pingpong_latency-seq.obj `if test -f '$(top_srcdir)/src/seq.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seq.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seq.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seq.Tpo $(DEPDIR)/test_pingpong_latency-seq.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seq.c' object='test_pingpong_latency-seq.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seq.obj `if test -f '$(top_srcdir)/src/seq.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seq.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seq.c'; fi`
+
+test_pingpong_latency-seqgrp.o: $(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seqgrp.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seqgrp.Tpo -c -o test_pingpong_latency-seqgrp.o `test -f '$(top_srcdir)/src/seqgrp.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seqgrp.Tpo $(DEPDIR)/test_pingpong_latency-seqgrp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqgrp.c' object='test_pingpong_latency-seqgrp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seqgrp.o `test -f '$(top_srcdir)/src/seqgrp.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqgrp.c
+
+test_pingpong_latency-seqgrp.obj: $(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seqgrp.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seqgrp.Tpo -c -o test_pingpong_latency-seqgrp.obj `if test -f '$(top_srcdir)/src/seqgrp.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqgrp.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqgrp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seqgrp.Tpo $(DEPDIR)/test_pingpong_latency-seqgrp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqgrp.c' object='test_pingpong_latency-seqgrp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seqgrp.obj `if test -f '$(top_srcdir)/src/seqgrp.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqgrp.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqgrp.c'; fi`
+
+test_pingpong_latency-waitstg.o: $(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-waitstg.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-waitstg.Tpo -c -o test_pingpong_latency-waitstg.o `test -f '$(top_srcdir)/src/waitstg.c' || echo '$(srcdir)/'`$(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-waitstg.Tpo $(DEPDIR)/test_pingpong_latency-waitstg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/waitstg.c' object='test_pingpong_latency-waitstg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-waitstg.o `test -f '$(top_srcdir)/src/waitstg.c' || echo '$(srcdir)/'`$(top_srcdir)/src/waitstg.c
+
+test_pingpong_latency-waitstg.obj: $(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-waitstg.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-waitstg.Tpo -c -o test_pingpong_latency-waitstg.obj `if test -f '$(top_srcdir)/src/waitstg.c'; then $(CYGPATH_W) '$(top_srcdir)/src/waitstg.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/waitstg.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-waitstg.Tpo $(DEPDIR)/test_pingpong_latency-waitstg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/waitstg.c' object='test_pingpong_latency-waitstg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-waitstg.obj `if test -f '$(top_srcdir)/src/waitstg.c'; then $(CYGPATH_W) '$(top_srcdir)/src/waitstg.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/waitstg.c'; fi`
+
+test_pingpong_latency-seqbar.o: $(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seqbar.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seqbar.Tpo -c -o test_pingpong_latency-seqbar.o `test -f '$(top_srcdir)/src/seqbar.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seqbar.Tpo $(DEPDIR)/test_pingpong_latency-seqbar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqbar.c' object='test_pingpong_latency-seqbar.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seqbar.o `test -f '$(top_srcdir)/src/seqbar.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqbar.c
+
+test_pingpong_latency-seqbar.obj: $(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seqbar.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seqbar.Tpo -c -o test_pingpong_latency-seqbar.obj `if test -f '$(top_srcdir)/src/seqbar.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqbar.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqbar.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seqbar.Tpo $(DEPDIR)/test_pingpong_latency-seqbar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqbar.c' object='test_pingpong_latency-seqbar.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seqbar.obj `if test -f '$(top_srcdir)/src/seqbar.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqbar.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqbar.c'; fi`
+
+test_pingpong_latency-seqr.o: $(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seqr.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seqr.Tpo -c -o test_pingpong_latency-seqr.o `test -f '$(top_srcdir)/src/seqr.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seqr.Tpo $(DEPDIR)/test_pingpong_latency-seqr.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqr.c' object='test_pingpong_latency-seqr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seqr.o `test -f '$(top_srcdir)/src/seqr.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqr.c
+
+test_pingpong_latency-seqr.obj: $(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-seqr.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-seqr.Tpo -c -o test_pingpong_latency-seqr.obj `if test -f '$(top_srcdir)/src/seqr.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqr.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqr.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-seqr.Tpo $(DEPDIR)/test_pingpong_latency-seqr.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqr.c' object='test_pingpong_latency-seqr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-seqr.obj `if test -f '$(top_srcdir)/src/seqr.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqr.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqr.c'; fi`
+
+test_pingpong_latency-event.o: $(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-event.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-event.Tpo -c -o test_pingpong_latency-event.o `test -f '$(top_srcdir)/src/event.c' || echo '$(srcdir)/'`$(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-event.Tpo $(DEPDIR)/test_pingpong_latency-event.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/event.c' object='test_pingpong_latency-event.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-event.o `test -f '$(top_srcdir)/src/event.c' || echo '$(srcdir)/'`$(top_srcdir)/src/event.c
+
+test_pingpong_latency-event.obj: $(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-event.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-event.Tpo -c -o test_pingpong_latency-event.obj `if test -f '$(top_srcdir)/src/event.c'; then $(CYGPATH_W) '$(top_srcdir)/src/event.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/event.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-event.Tpo $(DEPDIR)/test_pingpong_latency-event.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/event.c' object='test_pingpong_latency-event.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-event.obj `if test -f '$(top_srcdir)/src/event.c'; then $(CYGPATH_W) '$(top_srcdir)/src/event.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/event.c'; fi`
+
+test_pingpong_latency-ringbuf.o: $(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-ringbuf.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-ringbuf.Tpo -c -o test_pingpong_latency-ringbuf.o `test -f '$(top_srcdir)/src/ringbuf.c' || echo '$(srcdir)/'`$(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-ringbuf.Tpo $(DEPDIR)/test_pingpong_latency-ringbuf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/ringbuf.c' object='test_pingpong_latency-ringbuf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-ringbuf.o `test -f '$(top_srcdir)/src/ringbuf.c' || echo '$(srcdir)/'`$(top_srcdir)/src/ringbuf.c
+
+test_pingpong_latency-ringbuf.obj: $(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-ringbuf.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-ringbuf.Tpo -c -o test_pingpong_latency-ringbuf.obj `if test -f '$(top_srcdir)/src/ringbuf.c'; then $(CYGPATH_W) '$(top_srcdir)/src/ringbuf.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/ringbuf.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-ringbuf.Tpo $(DEPDIR)/test_pingpong_latency-ringbuf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/ringbuf.c' object='test_pingpong_latency-ringbuf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-ringbuf.obj `if test -f '$(top_srcdir)/src/ringbuf.c'; then $(CYGPATH_W) '$(top_srcdir)/src/ringbuf.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/ringbuf.c'; fi`
+
+test_pingpong_latency-util.o: $(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-util.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-util.Tpo -c -o test_pingpong_latency-util.o `test -f '$(top_srcdir)/src/util.c' || echo '$(srcdir)/'`$(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-util.Tpo $(DEPDIR)/test_pingpong_latency-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/util.c' object='test_pingpong_latency-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-util.o `test -f '$(top_srcdir)/src/util.c' || echo '$(srcdir)/'`$(top_srcdir)/src/util.c
+
+test_pingpong_latency-util.obj: $(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-util.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-util.Tpo -c -o test_pingpong_latency-util.obj `if test -f '$(top_srcdir)/src/util.c'; then $(CYGPATH_W) '$(top_srcdir)/src/util.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/util.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-util.Tpo $(DEPDIR)/test_pingpong_latency-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/util.c' object='test_pingpong_latency-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-util.obj `if test -f '$(top_srcdir)/src/util.c'; then $(CYGPATH_W) '$(top_srcdir)/src/util.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/util.c'; fi`
+
+test_pingpong_latency-eventproc.o: $(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-eventproc.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-eventproc.Tpo -c -o test_pingpong_latency-eventproc.o `test -f '$(top_srcdir)/src/eventproc.c' || echo '$(srcdir)/'`$(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-eventproc.Tpo $(DEPDIR)/test_pingpong_latency-eventproc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/eventproc.c' object='test_pingpong_latency-eventproc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-eventproc.o `test -f '$(top_srcdir)/src/eventproc.c' || echo '$(srcdir)/'`$(top_srcdir)/src/eventproc.c
+
+test_pingpong_latency-eventproc.obj: $(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-eventproc.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-eventproc.Tpo -c -o test_pingpong_latency-eventproc.obj `if test -f '$(top_srcdir)/src/eventproc.c'; then $(CYGPATH_W) '$(top_srcdir)/src/eventproc.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/eventproc.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-eventproc.Tpo $(DEPDIR)/test_pingpong_latency-eventproc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/eventproc.c' object='test_pingpong_latency-eventproc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-eventproc.obj `if test -f '$(top_srcdir)/src/eventproc.c'; then $(CYGPATH_W) '$(top_srcdir)/src/eventproc.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/eventproc.c'; fi`
+
+test_pingpong_latency-test-pingpong-latency.o: test-pingpong-latency.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-test-pingpong-latency.o -MD -MP -MF $(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Tpo -c -o test_pingpong_latency-test-pingpong-latency.o `test -f 'test-pingpong-latency.c' || echo '$(srcdir)/'`test-pingpong-latency.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Tpo $(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-pingpong-latency.c' object='test_pingpong_latency-test-pingpong-latency.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-test-pingpong-latency.o `test -f 'test-pingpong-latency.c' || echo '$(srcdir)/'`test-pingpong-latency.c
+
+test_pingpong_latency-test-pingpong-latency.obj: test-pingpong-latency.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -MT test_pingpong_latency-test-pingpong-latency.obj -MD -MP -MF $(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Tpo -c -o test_pingpong_latency-test-pingpong-latency.obj `if test -f 'test-pingpong-latency.c'; then $(CYGPATH_W) 'test-pingpong-latency.c'; else $(CYGPATH_W) '$(srcdir)/test-pingpong-latency.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Tpo $(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-pingpong-latency.c' object='test_pingpong_latency-test-pingpong-latency.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-test-pingpong-latency.obj `if test -f 'test-pingpong-latency.c'; then $(CYGPATH_W) 'test-pingpong-latency.c'; else $(CYGPATH_W) '$(srcdir)/test-pingpong-latency.c'; fi`
 
 test_three2one_thruput-test-three2one-thruput.o: test-three2one-thruput.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_thruput-test-three2one-thruput.o -MD -MP -MF $(DEPDIR)/test_three2one_thruput-test-three2one-thruput.Tpo -c -o test_three2one_thruput-test-three2one-thruput.o `test -f 'test-three2one-thruput.c' || echo '$(srcdir)/'`test-three2one-thruput.c
