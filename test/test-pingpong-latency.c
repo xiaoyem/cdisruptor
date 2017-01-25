@@ -31,7 +31,7 @@
 #include "eventproc.h"
 
 /* FIXME */
-/* static long iterations = 1000L * 1000L * 30L; */
+static long iterations = 1000L * 1000L * 30L;
 static ringbuf_t pingbuf, pongbuf;
 
 /* FIXME */
@@ -86,6 +86,8 @@ static void *ping_thread(void *data) {
 			diff = end.tv_sec * 1000000000 + end.tv_nsec -
 				start.tv_sec * 1000000000 - start.tv_nsec;
 			fprintf(stdout, "pingpong: %ld (%ldns)\n", event_get_long(pongevent), diff);
+			if (counter == iterations)
+				goto end;
 			clock_gettime(CLOCK_MONOTONIC, &start);
 			diff = start.tv_sec * 1000000000 + start.tv_nsec -
 				end.tv_sec * 1000000000 - end.tv_nsec;
@@ -104,6 +106,8 @@ static void *ping_thread(void *data) {
 		}
 		seq_set(pingseq, avail_pong);
 	}
+
+end:
 	return NULL;
 }
 
