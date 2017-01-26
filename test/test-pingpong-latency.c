@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+#include <limits.h>
 #include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
@@ -32,6 +34,7 @@
 
 /* FIXME */
 static long iterations = 1000L * 1000L * 30L;
+static long sum = 0L, min = LONG_MAX, max = LONG_MIN;
 static ringbuf_t pingbuf, pongbuf;
 
 /* FIXME */
@@ -41,6 +44,7 @@ static void *pong_thread(void *data) {
 	seq_t    pongseq = eventproc_get_seq(pongproc);
 	long next_ping = seq_get(pongseq) + 1L;
 
+	CPU_SET(1, &cpuset);
 	pthread_detach(pthread_self());
 	while (1) {
 		long avail_ping = seqbar_wait_for(pingbar, next_ping);
@@ -67,8 +71,9 @@ static void *ping_thread(void *data) {
 	struct timespec start, end;
 	long next_ping, next_pong;
 	event_t *pingevent;
-	long counter = 0, diff;
+	long counter = 0L;
 
+	CPU_SET(3, &cpuset);
 	sleep(1);
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	next_ping = ringbuf_next(pingbuf);
@@ -81,13 +86,17 @@ static void *ping_thread(void *data) {
 
 		while (next_pong <= avail_pong) {
 			event_t *pongevent = ringbuf_get(pongbuf, next_pong);
+			long diff;
 
 			clock_gettime(CLOCK_MONOTONIC, &end);
+			/* fprintf(stdout, "pingpong: %ld (%ldns)\n", event_get_long(pongevent), diff); */
+			if (event_get_long(pongevent) == iterations)
+				goto end;
 			diff = end.tv_sec * 1000000000 + end.tv_nsec -
 				start.tv_sec * 1000000000 - start.tv_nsec;
-			fprintf(stdout, "pingpong: %ld (%ldns)\n", event_get_long(pongevent), diff);
-			if (counter == iterations)
-				goto end;
+			sum += diff;
+			if (diff < min) min = diff;
+			if (diff > max) max = diff;
 			clock_gettime(CLOCK_MONOTONIC, &start);
 			diff = start.tv_sec * 1000000000 + start.tv_nsec -
 				end.tv_sec * 1000000000 - end.tv_nsec;
@@ -136,6 +145,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	pthread_join(thread, NULL);
+	fprintf(stdout, "avg=%ldns, min=%ldns, max=%ldns\n", sum / iterations, min, max);
 	return 0;
 }
 
