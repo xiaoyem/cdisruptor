@@ -18,6 +18,7 @@
  */
 
 #include <stdlib.h>
+#include <unistd.h>
 #include "macros.h"
 #include "mem.h"
 #include "seqr.h"
@@ -43,7 +44,8 @@ ringbuf_t ringbuf_new_single(int bufsize, waitstg_t waitstg) {
 		return NULL;
 	if (NEW(ringbuf) == NULL)
 		return NULL;
-	if ((ringbuf->entries = ALLOC(bufsize * sizeof (event_t) + 2 * 128)) == NULL)
+	if ((ringbuf->entries = POSIXALIGN(sysconf(_SC_PAGESIZE),
+		bufsize * sizeof (event_t) + 2 * 128)) == NULL)
 		return NULL;
 	ringbuf->idxmask = bufsize - 1;
 	ringbuf->seqr    = seqr_new_single(bufsize, waitstg);
@@ -61,7 +63,8 @@ ringbuf_t ringbuf_new_multi(int bufsize, waitstg_t waitstg) {
 		return NULL;
 	if (NEW(ringbuf) == NULL)
 		return NULL;
-	if ((ringbuf->entries = ALLOC(bufsize * sizeof (event_t) + 2 * 128)) == NULL)
+	if ((ringbuf->entries = POSIXALIGN(sysconf(_SC_PAGESIZE),
+		bufsize * sizeof (event_t) + 2 * 128)) == NULL)
 		return NULL;
 	ringbuf->idxmask = bufsize - 1;
 	ringbuf->seqr    = seqr_new_multi(bufsize, waitstg);
