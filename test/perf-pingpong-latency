@@ -1,19 +1,19 @@
-avg=291ns, min=102ns, max=492044ns
+avg=114ns, min=91ns, max=350503ns
 
  Performance counter stats for './test/test-pingpong-latency':
 
-      93174.070909      task-clock (msec)         #    1.979 CPUs utilized          
-               102      context-switches          #    0.001 K/sec                  
-                 7      cpu-migrations            #    0.000 K/sec                  
-               184      page-faults               #    0.002 K/sec                  
-   283,679,086,503      cycles                    #    3.045 GHz                      (50.00%)
-   400,871,095,373      instructions              #    1.41  insn per cycle           (62.50%)
-   106,369,500,590      branches                  # 1141.621 M/sec                    (62.50%)
-       106,232,640      branch-misses             #    0.10% of all branches          (62.50%)
-   110,979,904,837      L1-dcache-loads           # 1191.103 M/sec                    (62.50%)
-        22,424,111      L1-dcache-load-misses     #    0.02% of all L1-dcache hits    (62.50%)
-         1,456,182      LLC-loads                 #    0.016 M/sec                    (50.00%)
-             2,326      LLC-load-misses           #    0.16% of all LL-cache hits     (50.00%)
+      72243.736786      task-clock (msec)         #    1.973 CPUs utilized          
+               160      context-switches          #    0.002 K/sec                  
+                 5      cpu-migrations            #    0.000 K/sec                  
+               189      page-faults               #    0.003 K/sec                  
+   219,777,359,702      cycles                    #    3.042 GHz                      (50.00%)
+   345,471,164,087      instructions              #    1.57  insn per cycle           (62.50%)
+    96,643,344,064      branches                  # 1337.740 M/sec                    (62.50%)
+        72,247,786      branch-misses             #    0.07% of all branches          (62.50%)
+    94,572,636,457      L1-dcache-loads           # 1309.077 M/sec                    (62.50%)
+        16,787,878      L1-dcache-load-misses     #    0.02% of all L1-dcache hits    (62.50%)
+         1,172,957      LLC-loads                 #    0.016 M/sec                    (50.00%)
+             2,946      LLC-load-misses           #    0.25% of all LL-cache hits     (50.00%)
 
-      47.090055244 seconds time elapsed
+      36.624998203 seconds time elapsed
 
