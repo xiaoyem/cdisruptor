@@ -109,7 +109,8 @@ static void *ping_thread(void *data) {
 			diff = start.tv_sec * 1000000000 + start.tv_nsec -
 				end.tv_sec * 1000000000 - end.tv_nsec;
 			while (diff < 1000) {
-				sleep(0);
+				/* sleep(0); */
+				sched_yield();
 				clock_gettime(CLOCK_MONOTONIC, &start);
 				diff = start.tv_sec * 1000000000 + start.tv_nsec -
 					end.tv_sec * 1000000000 - end.tv_nsec;
@@ -134,8 +135,10 @@ int main(int argc, char **argv) {
 	seq_t pingseq, pongseq;
 	pthread_t thread;
 
-	pingbuf  = ringbuf_new_single(1024, waitstg_new_busyspin());
-	pongbuf  = ringbuf_new_single(1024, waitstg_new_busyspin());
+	/* pingbuf  = ringbuf_new_single(1024, waitstg_new_busyspin()); */
+	/* pongbuf  = ringbuf_new_single(1024, waitstg_new_busyspin()); */
+	pingbuf  = ringbuf_new_single(1024, waitstg_new_yielding());
+	pongbuf  = ringbuf_new_single(1024, waitstg_new_yielding());
 	pingbar  = ringbuf_new_bar(pingbuf, NULL, 0);
 	pongbar  = ringbuf_new_bar(pongbuf, NULL, 0);
 	pingproc = eventproc_new(pongbuf, pongbar);

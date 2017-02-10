@@ -18,6 +18,7 @@
  */
 
 #include <limits.h>
+#include <unistd.h>
 #include "macros.h"
 #include "mem.h"
 #include "util.h"
@@ -31,7 +32,8 @@ seqgrp_t seqgrp_new(seq_t *seqs, size_t length) {
 	if (unlikely(NEW0(seqgrp) == NULL))
 		return NULL;
 	seqgrp->length = length;
-	if (length > 0 && (seqgrp->seqs = ALLOC(length * sizeof (seq_t))) == NULL) {
+	if (length > 0 &&
+		(seqgrp->seqs = POSIXALIGN(sysconf(_SC_PAGESIZE), length * sizeof (seq_t))) == NULL) {
 		FREE(seqgrp);
 		return NULL;
 	}
