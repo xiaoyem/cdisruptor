@@ -101,7 +101,7 @@ seqr_t seqr_new_multi(int bufsize, waitstg_t waitstg) {
 		return NULL;
 	if (NEW(seqr) == NULL)
 		return NULL;
-	if ((seqr->u.m.availbuf = ALLOC(bufsize * sizeof (int))) == NULL) {
+	if ((seqr->u.m.availbuf = POSIXALIGN(sysconf(_SC_PAGESIZE), bufsize * sizeof (int))) == NULL) {
 		FREE(seqr);
 		return NULL;
 	}
@@ -340,7 +340,7 @@ long seqr_get_highest_published_seq(seqr_t seqr, long nextseq, long availseq) {
 		long seq;
 
 		for (seq = nextseq; seq <= availseq; ++seq)
-			if (seqr_is_avail(seqr, seq))
+			if (!seqr_is_avail(seqr, seq))
 				return seq - 1;
 	}
 	return availseq;
