@@ -36,7 +36,8 @@ build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = test-one2one-thruput$(EXEEXT) \
 	test-one2one-batch-thruput$(EXEEXT) \
-	test-pingpong-latency$(EXEEXT) test-three2one-thruput$(EXEEXT)
+	test-pingpong-latency$(EXEEXT) test-three2one-thruput$(EXEEXT) \
+	test-three2one-batch-thruput$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -104,6 +105,25 @@ test_pingpong_latency_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(test_pingpong_latency_CFLAGS) $(CFLAGS) \
 	$(test_pingpong_latency_LDFLAGS) $(LDFLAGS) -o $@
+am_test_three2one_batch_thruput_OBJECTS =  \
+	test_three2one_batch_thruput-mem.$(OBJEXT) \
+	test_three2one_batch_thruput-seq.$(OBJEXT) \
+	test_three2one_batch_thruput-seqgrp.$(OBJEXT) \
+	test_three2one_batch_thruput-waitstg.$(OBJEXT) \
+	test_three2one_batch_thruput-seqbar.$(OBJEXT) \
+	test_three2one_batch_thruput-seqr.$(OBJEXT) \
+	test_three2one_batch_thruput-event.$(OBJEXT) \
+	test_three2one_batch_thruput-ringbuf.$(OBJEXT) \
+	test_three2one_batch_thruput-util.$(OBJEXT) \
+	test_three2one_batch_thruput-eventproc.$(OBJEXT) \
+	test_three2one_batch_thruput-test-three2one-batch-thruput.$(OBJEXT)
+test_three2one_batch_thruput_OBJECTS =  \
+	$(am_test_three2one_batch_thruput_OBJECTS)
+test_three2one_batch_thruput_LDADD = $(LDADD)
+test_three2one_batch_thruput_LINK = $(LIBTOOL) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) \
+	$(test_three2one_batch_thruput_LDFLAGS) $(LDFLAGS) -o $@
 am_test_three2one_thruput_OBJECTS =  \
 	test_three2one_thruput-mem.$(OBJEXT) \
 	test_three2one_thruput-seq.$(OBJEXT) \
@@ -138,10 +158,12 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(test_one2one_batch_thruput_SOURCES) \
 	$(test_one2one_thruput_SOURCES) \
 	$(test_pingpong_latency_SOURCES) \
+	$(test_three2one_batch_thruput_SOURCES) \
 	$(test_three2one_thruput_SOURCES)
 DIST_SOURCES = $(test_one2one_batch_thruput_SOURCES) \
 	$(test_one2one_thruput_SOURCES) \
 	$(test_pingpong_latency_SOURCES) \
+	$(test_three2one_batch_thruput_SOURCES) \
 	$(test_three2one_thruput_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -292,6 +314,15 @@ $(top_srcdir)/src/eventproc.c test-three2one-thruput.c
 test_three2one_thruput_CPPFLAGS = -I$(top_srcdir)/include
 test_three2one_thruput_CFLAGS = -Wall -Winline -pthread
 test_three2one_thruput_LDFLAGS = -lrt -pthread
+test_three2one_batch_thruput_SOURCES = $(top_srcdir)/src/mem.c                 \
+$(top_srcdir)/src/seq.c $(top_srcdir)/src/seqgrp.c $(top_srcdir)/src/waitstg.c \
+$(top_srcdir)/src/seqbar.c $(top_srcdir)/src/seqr.c $(top_srcdir)/src/event.c  \
+$(top_srcdir)/src/ringbuf.c $(top_srcdir)/src/util.c                           \
+$(top_srcdir)/src/eventproc.c test-three2one-batch-thruput.c
+
+test_three2one_batch_thruput_CPPFLAGS = -I$(top_srcdir)/include
+test_three2one_batch_thruput_CFLAGS = -Wall -Winline -pthread
+test_three2one_batch_thruput_LDFLAGS = -lrt -pthread
 all: all-am
 
 .SUFFIXES:
@@ -344,6 +375,9 @@ test-one2one-thruput$(EXEEXT): $(test_one2one_thruput_OBJECTS) $(test_one2one_th
 test-pingpong-latency$(EXEEXT): $(test_pingpong_latency_OBJECTS) $(test_pingpong_latency_DEPENDENCIES) 
 	@rm -f test-pingpong-latency$(EXEEXT)
 	$(test_pingpong_latency_LINK) $(test_pingpong_latency_OBJECTS) $(test_pingpong_latency_LDADD) $(LIBS)
+test-three2one-batch-thruput$(EXEEXT): $(test_three2one_batch_thruput_OBJECTS) $(test_three2one_batch_thruput_DEPENDENCIES) 
+	@rm -f test-three2one-batch-thruput$(EXEEXT)
+	$(test_three2one_batch_thruput_LINK) $(test_three2one_batch_thruput_OBJECTS) $(test_three2one_batch_thruput_LDADD) $(LIBS)
 test-three2one-thruput$(EXEEXT): $(test_three2one_thruput_OBJECTS) $(test_three2one_thruput_DEPENDENCIES) 
 	@rm -f test-three2one-thruput$(EXEEXT)
 	$(test_three2one_thruput_LINK) $(test_three2one_thruput_OBJECTS) $(test_three2one_thruput_LDADD) $(LIBS)
@@ -387,6 +421,17 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-test-pingpong-latency.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pingpong_latency-waitstg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-event.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-eventproc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-mem.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-ringbuf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-seq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-seqbar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-seqgrp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-seqr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_batch_thruput-waitstg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_thruput-event.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_thruput-eventproc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_three2one_thruput-mem.Po@am__quote@
@@ -881,6 +926,160 @@ test_pingpong_latency-test-pingpong-latency.obj: test-pingpong-latency.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-pingpong-latency.c' object='test_pingpong_latency-test-pingpong-latency.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_pingpong_latency_CPPFLAGS) $(CPPFLAGS) $(test_pingpong_latency_CFLAGS) $(CFLAGS) -c -o test_pingpong_latency-test-pingpong-latency.obj `if test -f 'test-pingpong-latency.c'; then $(CYGPATH_W) 'test-pingpong-latency.c'; else $(CYGPATH_W) '$(srcdir)/test-pingpong-latency.c'; fi`
+
+test_three2one_batch_thruput-mem.o: $(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-mem.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-mem.Tpo -c -o test_three2one_batch_thruput-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-mem.Tpo $(DEPDIR)/test_three2one_batch_thruput-mem.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/mem.c' object='test_three2one_batch_thruput-mem.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
+
+test_three2one_batch_thruput-mem.obj: $(top_srcdir)/src/mem.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-mem.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-mem.Tpo -c -o test_three2one_batch_thruput-mem.obj `if test -f '$(top_srcdir)/src/mem.c'; then $(CYGPATH_W) '$(top_srcdir)/src/mem.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/mem.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-mem.Tpo $(DEPDIR)/test_three2one_batch_thruput-mem.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/mem.c' object='test_three2one_batch_thruput-mem.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-mem.obj `if test -f '$(top_srcdir)/src/mem.c'; then $(CYGPATH_W) '$(top_srcdir)/src/mem.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/mem.c'; fi`
+
+test_three2one_batch_thruput-seq.o: $(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seq.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seq.Tpo -c -o test_three2one_batch_thruput-seq.o `test -f '$(top_srcdir)/src/seq.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seq.Tpo $(DEPDIR)/test_three2one_batch_thruput-seq.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seq.c' object='test_three2one_batch_thruput-seq.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seq.o `test -f '$(top_srcdir)/src/seq.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seq.c
+
+test_three2one_batch_thruput-seq.obj: $(top_srcdir)/src/seq.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seq.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seq.Tpo -c -o test_three2one_batch_thruput-seq.obj `if test -f '$(top_srcdir)/src/seq.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seq.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seq.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seq.Tpo $(DEPDIR)/test_three2one_batch_thruput-seq.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seq.c' object='test_three2one_batch_thruput-seq.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seq.obj `if test -f '$(top_srcdir)/src/seq.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seq.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seq.c'; fi`
+
+test_three2one_batch_thruput-seqgrp.o: $(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seqgrp.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seqgrp.Tpo -c -o test_three2one_batch_thruput-seqgrp.o `test -f '$(top_srcdir)/src/seqgrp.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seqgrp.Tpo $(DEPDIR)/test_three2one_batch_thruput-seqgrp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqgrp.c' object='test_three2one_batch_thruput-seqgrp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seqgrp.o `test -f '$(top_srcdir)/src/seqgrp.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqgrp.c
+
+test_three2one_batch_thruput-seqgrp.obj: $(top_srcdir)/src/seqgrp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seqgrp.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seqgrp.Tpo -c -o test_three2one_batch_thruput-seqgrp.obj `if test -f '$(top_srcdir)/src/seqgrp.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqgrp.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqgrp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seqgrp.Tpo $(DEPDIR)/test_three2one_batch_thruput-seqgrp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqgrp.c' object='test_three2one_batch_thruput-seqgrp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seqgrp.obj `if test -f '$(top_srcdir)/src/seqgrp.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqgrp.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqgrp.c'; fi`
+
+test_three2one_batch_thruput-waitstg.o: $(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-waitstg.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-waitstg.Tpo -c -o test_three2one_batch_thruput-waitstg.o `test -f '$(top_srcdir)/src/waitstg.c' || echo '$(srcdir)/'`$(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-waitstg.Tpo $(DEPDIR)/test_three2one_batch_thruput-waitstg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/waitstg.c' object='test_three2one_batch_thruput-waitstg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-waitstg.o `test -f '$(top_srcdir)/src/waitstg.c' || echo '$(srcdir)/'`$(top_srcdir)/src/waitstg.c
+
+test_three2one_batch_thruput-waitstg.obj: $(top_srcdir)/src/waitstg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-waitstg.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-waitstg.Tpo -c -o test_three2one_batch_thruput-waitstg.obj `if test -f '$(top_srcdir)/src/waitstg.c'; then $(CYGPATH_W) '$(top_srcdir)/src/waitstg.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/waitstg.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-waitstg.Tpo $(DEPDIR)/test_three2one_batch_thruput-waitstg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/waitstg.c' object='test_three2one_batch_thruput-waitstg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-waitstg.obj `if test -f '$(top_srcdir)/src/waitstg.c'; then $(CYGPATH_W) '$(top_srcdir)/src/waitstg.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/waitstg.c'; fi`
+
+test_three2one_batch_thruput-seqbar.o: $(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seqbar.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seqbar.Tpo -c -o test_three2one_batch_thruput-seqbar.o `test -f '$(top_srcdir)/src/seqbar.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seqbar.Tpo $(DEPDIR)/test_three2one_batch_thruput-seqbar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqbar.c' object='test_three2one_batch_thruput-seqbar.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seqbar.o `test -f '$(top_srcdir)/src/seqbar.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqbar.c
+
+test_three2one_batch_thruput-seqbar.obj: $(top_srcdir)/src/seqbar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seqbar.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seqbar.Tpo -c -o test_three2one_batch_thruput-seqbar.obj `if test -f '$(top_srcdir)/src/seqbar.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqbar.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqbar.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seqbar.Tpo $(DEPDIR)/test_three2one_batch_thruput-seqbar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqbar.c' object='test_three2one_batch_thruput-seqbar.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seqbar.obj `if test -f '$(top_srcdir)/src/seqbar.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqbar.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqbar.c'; fi`
+
+test_three2one_batch_thruput-seqr.o: $(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seqr.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seqr.Tpo -c -o test_three2one_batch_thruput-seqr.o `test -f '$(top_srcdir)/src/seqr.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seqr.Tpo $(DEPDIR)/test_three2one_batch_thruput-seqr.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqr.c' object='test_three2one_batch_thruput-seqr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seqr.o `test -f '$(top_srcdir)/src/seqr.c' || echo '$(srcdir)/'`$(top_srcdir)/src/seqr.c
+
+test_three2one_batch_thruput-seqr.obj: $(top_srcdir)/src/seqr.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-seqr.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-seqr.Tpo -c -o test_three2one_batch_thruput-seqr.obj `if test -f '$(top_srcdir)/src/seqr.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqr.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqr.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-seqr.Tpo $(DEPDIR)/test_three2one_batch_thruput-seqr.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/seqr.c' object='test_three2one_batch_thruput-seqr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-seqr.obj `if test -f '$(top_srcdir)/src/seqr.c'; then $(CYGPATH_W) '$(top_srcdir)/src/seqr.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/seqr.c'; fi`
+
+test_three2one_batch_thruput-event.o: $(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-event.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-event.Tpo -c -o test_three2one_batch_thruput-event.o `test -f '$(top_srcdir)/src/event.c' || echo '$(srcdir)/'`$(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-event.Tpo $(DEPDIR)/test_three2one_batch_thruput-event.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/event.c' object='test_three2one_batch_thruput-event.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-event.o `test -f '$(top_srcdir)/src/event.c' || echo '$(srcdir)/'`$(top_srcdir)/src/event.c
+
+test_three2one_batch_thruput-event.obj: $(top_srcdir)/src/event.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-event.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-event.Tpo -c -o test_three2one_batch_thruput-event.obj `if test -f '$(top_srcdir)/src/event.c'; then $(CYGPATH_W) '$(top_srcdir)/src/event.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/event.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-event.Tpo $(DEPDIR)/test_three2one_batch_thruput-event.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/event.c' object='test_three2one_batch_thruput-event.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-event.obj `if test -f '$(top_srcdir)/src/event.c'; then $(CYGPATH_W) '$(top_srcdir)/src/event.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/event.c'; fi`
+
+test_three2one_batch_thruput-ringbuf.o: $(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-ringbuf.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-ringbuf.Tpo -c -o test_three2one_batch_thruput-ringbuf.o `test -f '$(top_srcdir)/src/ringbuf.c' || echo '$(srcdir)/'`$(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-ringbuf.Tpo $(DEPDIR)/test_three2one_batch_thruput-ringbuf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/ringbuf.c' object='test_three2one_batch_thruput-ringbuf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-ringbuf.o `test -f '$(top_srcdir)/src/ringbuf.c' || echo '$(srcdir)/'`$(top_srcdir)/src/ringbuf.c
+
+test_three2one_batch_thruput-ringbuf.obj: $(top_srcdir)/src/ringbuf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-ringbuf.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-ringbuf.Tpo -c -o test_three2one_batch_thruput-ringbuf.obj `if test -f '$(top_srcdir)/src/ringbuf.c'; then $(CYGPATH_W) '$(top_srcdir)/src/ringbuf.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/ringbuf.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-ringbuf.Tpo $(DEPDIR)/test_three2one_batch_thruput-ringbuf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/ringbuf.c' object='test_three2one_batch_thruput-ringbuf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-ringbuf.obj `if test -f '$(top_srcdir)/src/ringbuf.c'; then $(CYGPATH_W) '$(top_srcdir)/src/ringbuf.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/ringbuf.c'; fi`
+
+test_three2one_batch_thruput-util.o: $(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-util.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-util.Tpo -c -o test_three2one_batch_thruput-util.o `test -f '$(top_srcdir)/src/util.c' || echo '$(srcdir)/'`$(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-util.Tpo $(DEPDIR)/test_three2one_batch_thruput-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/util.c' object='test_three2one_batch_thruput-util.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-util.o `test -f '$(top_srcdir)/src/util.c' || echo '$(srcdir)/'`$(top_srcdir)/src/util.c
+
+test_three2one_batch_thruput-util.obj: $(top_srcdir)/src/util.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-util.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-util.Tpo -c -o test_three2one_batch_thruput-util.obj `if test -f '$(top_srcdir)/src/util.c'; then $(CYGPATH_W) '$(top_srcdir)/src/util.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/util.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-util.Tpo $(DEPDIR)/test_three2one_batch_thruput-util.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/util.c' object='test_three2one_batch_thruput-util.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-util.obj `if test -f '$(top_srcdir)/src/util.c'; then $(CYGPATH_W) '$(top_srcdir)/src/util.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/util.c'; fi`
+
+test_three2one_batch_thruput-eventproc.o: $(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-eventproc.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-eventproc.Tpo -c -o test_three2one_batch_thruput-eventproc.o `test -f '$(top_srcdir)/src/eventproc.c' || echo '$(srcdir)/'`$(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-eventproc.Tpo $(DEPDIR)/test_three2one_batch_thruput-eventproc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/eventproc.c' object='test_three2one_batch_thruput-eventproc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-eventproc.o `test -f '$(top_srcdir)/src/eventproc.c' || echo '$(srcdir)/'`$(top_srcdir)/src/eventproc.c
+
+test_three2one_batch_thruput-eventproc.obj: $(top_srcdir)/src/eventproc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-eventproc.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-eventproc.Tpo -c -o test_three2one_batch_thruput-eventproc.obj `if test -f '$(top_srcdir)/src/eventproc.c'; then $(CYGPATH_W) '$(top_srcdir)/src/eventproc.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/eventproc.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-eventproc.Tpo $(DEPDIR)/test_three2one_batch_thruput-eventproc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/eventproc.c' object='test_three2one_batch_thruput-eventproc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-eventproc.obj `if test -f '$(top_srcdir)/src/eventproc.c'; then $(CYGPATH_W) '$(top_srcdir)/src/eventproc.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/eventproc.c'; fi`
+
+test_three2one_batch_thruput-test-three2one-batch-thruput.o: test-three2one-batch-thruput.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-test-three2one-batch-thruput.o -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Tpo -c -o test_three2one_batch_thruput-test-three2one-batch-thruput.o `test -f 'test-three2one-batch-thruput.c' || echo '$(srcdir)/'`test-three2one-batch-thruput.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Tpo $(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-three2one-batch-thruput.c' object='test_three2one_batch_thruput-test-three2one-batch-thruput.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-test-three2one-batch-thruput.o `test -f 'test-three2one-batch-thruput.c' || echo '$(srcdir)/'`test-three2one-batch-thruput.c
+
+test_three2one_batch_thruput-test-three2one-batch-thruput.obj: test-three2one-batch-thruput.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_batch_thruput-test-three2one-batch-thruput.obj -MD -MP -MF $(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Tpo -c -o test_three2one_batch_thruput-test-three2one-batch-thruput.obj `if test -f 'test-three2one-batch-thruput.c'; then $(CYGPATH_W) 'test-three2one-batch-thruput.c'; else $(CYGPATH_W) '$(srcdir)/test-three2one-batch-thruput.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Tpo $(DEPDIR)/test_three2one_batch_thruput-test-three2one-batch-thruput.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test-three2one-batch-thruput.c' object='test_three2one_batch_thruput-test-three2one-batch-thruput.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_batch_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_batch_thruput_CFLAGS) $(CFLAGS) -c -o test_three2one_batch_thruput-test-three2one-batch-thruput.obj `if test -f 'test-three2one-batch-thruput.c'; then $(CYGPATH_W) 'test-three2one-batch-thruput.c'; else $(CYGPATH_W) '$(srcdir)/test-three2one-batch-thruput.c'; fi`
 
 test_three2one_thruput-mem.o: $(top_srcdir)/src/mem.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_three2one_thruput_CPPFLAGS) $(CPPFLAGS) $(test_three2one_thruput_CFLAGS) $(CFLAGS) -MT test_three2one_thruput-mem.o -MD -MP -MF $(DEPDIR)/test_three2one_thruput-mem.Tpo -c -o test_three2one_thruput-mem.o `test -f '$(top_srcdir)/src/mem.c' || echo '$(srcdir)/'`$(top_srcdir)/src/mem.c
