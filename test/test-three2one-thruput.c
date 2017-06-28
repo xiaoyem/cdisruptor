@@ -17,6 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ *             track to prevent wrap
+ *             +--------------------+
+ *             |                    |
+ *             |                    v
+ * +----+    +====+    +====+    +-----+
+ * | P1 |--->| RB |<---| SB |    | EP1 |
+ * +----+    +====+    +====+    +-----+
+ *             ^   get    ^         |
+ * +----+      |          |         |
+ * | P2 |------+          +---------+
+ * +----+      |            waitFor
+ *             |
+ * +----+      |
+ * | P3 |------+
+ * +----+
+ */
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,7 +98,7 @@ static void *pb_thread(void *data) {
 int main(int argc, char **argv) {
 	ringbuf_t ringbuf = ringbuf_new_multi(1024 * 64, waitstg_new_busyspin());
 	seqbar_t seqbar = ringbuf_new_bar(ringbuf, NULL, 0);
-	eventproc_t eventproc = eventproc_new(ringbuf, seqbar);
+	eventproc_t eventproc = eventproc_new(&ringbuf, &seqbar, 1);
 	seq_t seq = eventproc_get_seq(eventproc);
 	pthread_t thread;
 	struct timespec start, end;

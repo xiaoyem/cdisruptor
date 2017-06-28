@@ -20,6 +20,7 @@
 #ifndef UTIL_INCLUDED
 #define UTIL_INCLUDED
 
+#include <stddef.h>
 #include "seq.h"
 
 /* FIXME: exported functions */

@@ -17,55 +17,97 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <unistd.h>
 #include "macros.h"
 #include "mem.h"
 #include "eventproc.h"
 
 /* FIXME */
 struct eventproc_t {
-	ringbuf_t	ringbuf;
-	seqbar_t	seqbar;
-	seq_t		seq;
+	size_t		length;
+	ringbuf_t	*ringbufs;
+	seqbar_t	*seqbars;
+	seq_t		*seqs;
 };
 
 /* FIXME */
-eventproc_t eventproc_new(ringbuf_t ringbuf, seqbar_t seqbar) {
+eventproc_t eventproc_new(ringbuf_t *ringbufs, seqbar_t *seqbars, size_t length) {
 	eventproc_t eventproc;
+	size_t i;
 
-	if (unlikely(NEW(eventproc) == NULL))
+	if (unlikely(NEW0(eventproc) == NULL))
 		return NULL;
-	eventproc->ringbuf = ringbuf;
-	eventproc->seqbar  = seqbar;
-	eventproc->seq     = seq_new();
+	eventproc->length   = length;
+	eventproc->ringbufs = ringbufs;
+	eventproc->seqbars  = seqbars;
+	if (length > 0 &&
+		(eventproc->seqs = POSIXALIGN(sysconf(_SC_PAGESIZE), length * sizeof (seq_t))) == NULL) {
+		FREE(eventproc);
+		return NULL;
+	}
+	for (i = 0; i < length; ++i)
+		eventproc->seqs[i] = seq_new();
 	return eventproc;
 }
 
 /* FIXME */
 void eventproc_free(eventproc_t *epp) {
+	size_t i;
+
 	if (unlikely(epp == NULL || *epp == NULL))
 		return;
-	seq_free(&(*epp)->seq);
+	for (i = 0; i < (*epp)->length; ++i)
+		seq_free(&(*epp)->seqs[i]);
+	FREE((*epp)->seqs);
 	FREE(*epp);
 }
 
 /* FIXME */
 ringbuf_t eventproc_get_ringbuf(eventproc_t eventproc) {
+	if (unlikely(eventproc == NULL || eventproc->length == 0))
+		return NULL;
+	return eventproc->ringbufs[0];
+}
+
+/* FIXME */
+ringbuf_t *eventproc_get_ringbufs(eventproc_t eventproc) {
 	if (unlikely(eventproc == NULL))
 		return NULL;
-	return eventproc->ringbuf;
+	return eventproc->ringbufs;
 }
 
 /* FIXME */
 seqbar_t eventproc_get_seqbar(eventproc_t eventproc) {
+	if (unlikely(eventproc == NULL || eventproc->length == 0))
+		return NULL;
+	return eventproc->seqbars[0];
+}
+
+/* FIXME */
+seqbar_t *eventproc_get_seqbars(eventproc_t eventproc) {
 	if (unlikely(eventproc == NULL))
 		return NULL;
-	return eventproc->seqbar;
+	return eventproc->seqbars;
 }
 
 /* FIXME */
 seq_t eventproc_get_seq(eventproc_t eventproc) {
+	if (unlikely(eventproc == NULL || eventproc->length == 0))
+		return NULL;
+	return eventproc->seqs[0];
+}
+
+/* FIXME */
+seq_t *eventproc_get_seqs(eventproc_t eventproc) {
 	if (unlikely(eventproc == NULL))
 		return NULL;
-	return eventproc->seq;
+	return eventproc->seqs;
+}
+
+/* FIXME */
+size_t eventproc_get_length(eventproc_t eventproc) {
+	if (unlikely(eventproc == NULL))
+		return 0;
+	return eventproc->length;
 }
 

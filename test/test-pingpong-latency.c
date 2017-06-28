@@ -17,6 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ *               +----------+
+ *               |          |
+ *               |   get    V
+ *  waitFor   +=====+    +=====+  claim
+ *    +------>| SB2 |    | RB2 |<------+
+ *    |       +=====+    +=====+       |
+ *    |                                |
+ * +-----+    +=====+    +=====+    +-----+
+ * | EP1 |--->| RB1 |    | SB1 |<---| EP2 |
+ * +-----+    +=====+    +=====+    +-----+
+ *       claim   ^   get    |  waitFor
+ *               |          |
+ *               +----------+
+ */
+
 #define _GNU_SOURCE
 #include <limits.h>
 #include <pthread.h>
@@ -141,8 +157,8 @@ int main(int argc, char **argv) {
 	pongbuf  = ringbuf_new_single(1024, waitstg_new_yielding());
 	pingbar  = ringbuf_new_bar(pingbuf, NULL, 0);
 	pongbar  = ringbuf_new_bar(pongbuf, NULL, 0);
-	pingproc = eventproc_new(pongbuf, pongbar);
-	pongproc = eventproc_new(pingbuf, pingbar);
+	pingproc = eventproc_new(&pongbuf, &pongbar, 1);
+	pongproc = eventproc_new(&pingbuf, &pingbar, 1);
 	pingseq  = eventproc_get_seq(pingproc);
 	pongseq  = eventproc_get_seq(pongproc);
 	ringbuf_add_gatingseqs(pingbuf, &pongseq, 1);

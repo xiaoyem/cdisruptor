@@ -20,6 +20,7 @@
 #ifndef EVENTPROC_INCLUDED
 #define EVENTPROC_INCLUDED
 
+#include <stddef.h>
 #include "seq.h"
 #include "seqbar.h"
 #include "ringbuf.h"
@@ -28,11 +29,15 @@
 typedef struct eventproc_t *eventproc_t;
 
 /* FIXME: exported functions */
-extern eventproc_t eventproc_new(ringbuf_t ringbuf, seqbar_t seqbar);
+extern eventproc_t eventproc_new(ringbuf_t *ringbuf, seqbar_t *seqbar, size_t length);
 extern void        eventproc_free(eventproc_t *epp);
 extern ringbuf_t   eventproc_get_ringbuf(eventproc_t eventproc);
+extern ringbuf_t  *eventproc_get_ringbufs(eventproc_t eventproc);
 extern seqbar_t    eventproc_get_seqbar(eventproc_t eventproc);
+extern seqbar_t   *eventproc_get_seqbars(eventproc_t eventproc);
 extern seq_t       eventproc_get_seq(eventproc_t eventproc);
+extern seq_t      *eventproc_get_seqs(eventproc_t eventproc);
+extern size_t      eventproc_get_length(eventproc_t eventproc);
 
 #endif /* EVENTPROC_INCLUDED */
 

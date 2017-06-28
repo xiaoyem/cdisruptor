@@ -21,6 +21,7 @@
 #define SEQR_INCLUDED
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "seq.h"
 #include "waitstg.h"
 #include "seqbar.h"

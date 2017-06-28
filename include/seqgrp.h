@@ -21,6 +21,7 @@
 #define SEQGRP_INCLUDED
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "seq.h"
 
 /* FIXME: exported types */
