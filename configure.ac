@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([cdisruptor], [0.0.1], [mengxiaoye@dce.com.cn])
+AC_INIT([cdisruptor], [0.0.1], [xiaoyem@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/seqr.c])

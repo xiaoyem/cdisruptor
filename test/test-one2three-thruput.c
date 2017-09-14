@@ -41,16 +41,22 @@
 #include "eventproc.h"
 
 /* FIXME */
+struct vo {
+	long	value;
+	int	oper;
+};
+
+/* FIXME */
 static long iterations = 1000L * 1000L * 100L;
 static int num_eventprocs = 3;
-static long value[3];
 
 /* FIXME */
-static void *ep1_thread(void *data) {
+static void *ep_thread(void *data) {
 	eventproc_t eventproc = (eventproc_t)data;
 	ringbuf_t ringbuf = eventproc_get_ringbuf(eventproc);
 	seqbar_t  seqbar  = eventproc_get_seqbar(eventproc);
 	seq_t     seq     = eventproc_get_seq(eventproc);
+	struct vo *vo     = eventproc_get_extra(eventproc);
 	long next_seq = seq_get(seq) + 1L;
 	long expcount = seq_get(seq) + iterations;
 
@@ -61,63 +67,12 @@ static void *ep1_thread(void *data) {
 			event_t *event = ringbuf_get(ringbuf, next_seq);
 
 			/* fprintf(stdout, "%ld\n", event_get_long(event)); */
-			value[0] += event_get_long(event);
-			if (next_seq == expcount)
-				goto end;
-			++next_seq;
-		}
-		seq_set(seq, avail_seq);
-	}
-
-end:
-	return NULL;
-}
-
-/* FIXME */
-static void *ep2_thread(void *data) {
-	eventproc_t eventproc = (eventproc_t)data;
-	ringbuf_t ringbuf = eventproc_get_ringbuf(eventproc);
-	seqbar_t  seqbar  = eventproc_get_seqbar(eventproc);
-	seq_t     seq     = eventproc_get_seq(eventproc);
-	long next_seq = seq_get(seq) + 1L;
-	long expcount = seq_get(seq) + iterations;
-
-	while (1) {
-		long avail_seq = seqbar_wait_for(seqbar, next_seq);
-
-		while (next_seq <= avail_seq) {
-			event_t *event = ringbuf_get(ringbuf, next_seq);
-
-			/* fprintf(stdout, "%ld\n", event_get_long(event)); */
-			value[1] -= event_get_long(event);
-			if (next_seq == expcount)
-				goto end;
-			++next_seq;
-		}
-		seq_set(seq, avail_seq);
-	}
-
-end:
-	return NULL;
-}
-
-/* FIXME */
-static void *ep3_thread(void *data) {
-	eventproc_t eventproc = (eventproc_t)data;
-	ringbuf_t ringbuf = eventproc_get_ringbuf(eventproc);
-	seqbar_t  seqbar  = eventproc_get_seqbar(eventproc);
-	seq_t     seq     = eventproc_get_seq(eventproc);
-	long next_seq = seq_get(seq) + 1L;
-	long expcount = seq_get(seq) + iterations;
-
-	while (1) {
-		long avail_seq = seqbar_wait_for(seqbar, next_seq);
-
-		while (next_seq <= avail_seq) {
-			event_t *event = ringbuf_get(ringbuf, next_seq);
-
-			/* fprintf(stdout, "%ld\n", event_get_long(event)); */
-			value[2] &= event_get_long(event);
+			if (vo->oper == 0)
+				vo->value += event_get_long(event);
+			else if (vo->oper == 1)
+				vo->value -= event_get_long(event);
+			else
+				vo->value &= event_get_long(event);
 			if (next_seq == expcount)
 				goto end;
 			++next_seq;
@@ -132,6 +87,7 @@ end:
 int main(int argc, char **argv) {
 	ringbuf_t ringbuf = ringbuf_new_single(1024 * 8, waitstg_new_yielding());
 	seqbar_t seqbar = ringbuf_new_bar(ringbuf, NULL, 0);
+	struct vo vo[num_eventprocs];
 	eventproc_t eventproc[num_eventprocs];
 	pthread_t thread[num_eventprocs];
 	struct timespec start, end;
@@ -140,21 +96,15 @@ int main(int argc, char **argv) {
 	for (i = 0; i < num_eventprocs; ++i) {
 		seq_t seq;
 
-		eventproc[i] = eventproc_new(&ringbuf, &seqbar, 1);
+		vo[i].value = 0;
+		vo[i].oper  = i;
+		eventproc[i] = eventproc_new(&ringbuf, &seqbar, 1, &vo[i]);
 		seq = eventproc_get_seq(eventproc[i]);
 		ringbuf_add_gatingseqs(ringbuf, &seq, 1);
-	}
-	if (pthread_create(&thread[0], NULL, ep1_thread, eventproc[0]) != 0) {
-		fprintf(stderr, "Error initializing event processor\n");
-		exit(1);
-	}
-	if (pthread_create(&thread[1], NULL, ep2_thread, eventproc[1]) != 0) {
-		fprintf(stderr, "Error initializing event processor\n");
-		exit(1);
-	}
-	if (pthread_create(&thread[2], NULL, ep3_thread, eventproc[2]) != 0) {
-		fprintf(stderr, "Error initializing event processor\n");
-		exit(1);
+		if (pthread_create(&thread[i], NULL, ep_thread, eventproc[i]) != 0) {
+			fprintf(stderr, "Error initializing event processor\n");
+			exit(1);
+		}
 	}
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	for (i = 0; i < iterations; ++i) {

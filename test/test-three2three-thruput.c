@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 		ringbufs[i] = ringbuf_new_single(1024 * 64, waitstg_new_yielding());
 		seqbars[i] = ringbuf_new_bar(ringbufs[i], NULL, 0);
 	}
-	eventproc = eventproc_new(ringbufs, seqbars, num_publishers);
+	eventproc = eventproc_new(ringbufs, seqbars, num_publishers, NULL);
 	seqs = eventproc_get_seqs(eventproc);
 	for (i = 0; i < num_publishers; ++i)
 		ringbuf_add_gatingseqs(ringbufs[i], &seqs[i], 1);

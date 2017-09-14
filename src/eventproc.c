@@ -26,10 +26,11 @@ struct eventproc_t {
 	ringbuf_t	*ringbufs;
 	seqbar_t	*seqbars;
 	seq_t		*seqs;
+	void		*extra;
 };
 
 /* FIXME */
-eventproc_t eventproc_new(ringbuf_t *ringbufs, seqbar_t *seqbars, size_t length) {
+eventproc_t eventproc_new(ringbuf_t *ringbufs, seqbar_t *seqbars, size_t length, void *extra) {
 	eventproc_t eventproc;
 	size_t i;
 
@@ -45,6 +46,7 @@ eventproc_t eventproc_new(ringbuf_t *ringbufs, seqbar_t *seqbars, size_t length)
 	}
 	for (i = 0; i < length; ++i)
 		eventproc->seqs[i] = seq_new();
+	eventproc->extra    = extra;
 	return eventproc;
 }
 
@@ -100,6 +102,13 @@ seq_t *eventproc_get_seqs(eventproc_t eventproc) {
 	if (unlikely(eventproc == NULL))
 		return NULL;
 	return eventproc->seqs;
+}
+
+/* FIXME */
+void *eventproc_get_extra(eventproc_t eventproc) {
+	if (unlikely(eventproc == NULL))
+		return NULL;
+	return eventproc->extra;
 }
 
 /* FIXME */
