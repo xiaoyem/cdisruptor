@@ -41,7 +41,7 @@
 #include "eventproc.h"
 
 /* FIXME */
-static long iterations = 1000L * 1000L * 1000L;
+static long iterations = 1000L * 1000L * 100L;
 static long value = 0L;
 
 /* FIXME */

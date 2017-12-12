@@ -53,16 +53,16 @@ static ringbuf_t pingbuf, pongbuf;
 
 /* FIXME */
 static void *pong_thread(void *data) {
-	/* cpu_set_t cpuset;
-	pthread_t thread = pthread_self(); */
+	cpu_set_t cpuset;
+	pthread_t thread = pthread_self();
 	eventproc_t pongproc = (eventproc_t)data;
 	seqbar_t pingbar = eventproc_get_seqbar(pongproc);
 	seq_t    pongseq = eventproc_get_seq(pongproc);
 	long next_ping = seq_get(pongseq) + 1L;
 
-	/* CPU_ZERO(&cpuset);
+	CPU_ZERO(&cpuset);
 	CPU_SET(1, &cpuset);
-	pthread_setaffinity_np(thread, sizeof (cpu_set_t), &cpuset); */
+	pthread_setaffinity_np(thread, sizeof (cpu_set_t), &cpuset);
 	pthread_detach(pthread_self());
 	while (1) {
 		long avail_ping = seqbar_wait_for(pingbar, next_ping);
@@ -83,8 +83,8 @@ static void *pong_thread(void *data) {
 
 /* FIXME */
 static void *ping_thread(void *data) {
-	/* cpu_set_t cpuset;
-	pthread_t thread = pthread_self(); */
+	cpu_set_t cpuset;
+	pthread_t thread = pthread_self();
 	eventproc_t pingproc = (eventproc_t)data;
 	seqbar_t pongbar = eventproc_get_seqbar(pingproc);
 	seq_t    pingseq = eventproc_get_seq(pingproc);
@@ -93,9 +93,9 @@ static void *ping_thread(void *data) {
 	event_t *pingevent;
 	long counter = 0L;
 
-	/* CPU_ZERO(&cpuset);
+	CPU_ZERO(&cpuset);
 	CPU_SET(3, &cpuset);
-	pthread_setaffinity_np(thread, sizeof (cpu_set_t), &cpuset); */
+	pthread_setaffinity_np(thread, sizeof (cpu_set_t), &cpuset);
 	sleep(1);
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	next_ping = ringbuf_next(pingbuf);
@@ -123,8 +123,8 @@ static void *ping_thread(void *data) {
 			diff = start.tv_sec * 1000000000 + start.tv_nsec -
 				end.tv_sec * 1000000000 - end.tv_nsec;
 			while (diff < 1000) {
-				/* sleep(0); */
-				sched_yield();
+				sleep(0);
+				/* sched_yield(); */
 				clock_gettime(CLOCK_MONOTONIC, &start);
 				diff = start.tv_sec * 1000000000 + start.tv_nsec -
 					end.tv_sec * 1000000000 - end.tv_nsec;
@@ -149,10 +149,10 @@ int main(int argc, char **argv) {
 	seq_t pingseq, pongseq;
 	pthread_t thread;
 
-	/* pingbuf  = ringbuf_new_single(1024, waitstg_new_busyspin()); */
-	/* pongbuf  = ringbuf_new_single(1024, waitstg_new_busyspin()); */
-	pingbuf  = ringbuf_new_single(1024, waitstg_new_yielding());
-	pongbuf  = ringbuf_new_single(1024, waitstg_new_yielding());
+	pingbuf  = ringbuf_new_single(1024, waitstg_new_busyspin());
+	pongbuf  = ringbuf_new_single(1024, waitstg_new_busyspin());
+	/* pingbuf  = ringbuf_new_single(1024, waitstg_new_yielding()); */
+	/* pongbuf  = ringbuf_new_single(1024, waitstg_new_yielding()); */
 	pingbar  = ringbuf_new_bar(pingbuf, NULL, 0);
 	pongbar  = ringbuf_new_bar(pongbuf, NULL, 0);
 	pingproc = eventproc_new(&pongbuf, &pongbar, 1, NULL);
